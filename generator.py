@@ -76,7 +76,7 @@ class Grid:
             print()
 
     def plot(self, show=True):
-        plt.title(f'{self.grid.shape[1]} x {self.grid.shape[0]}\nObstacles: {self.num_obstacle_cells}')
+        plt.title(f'{self.grid.shape[1]} x {self.grid.shape[0]}\nObstacles: {self.num_obstacle_cells} / {self.grid.size}')
         # plt.imshow(1-self.grid, cmap='gray')
         plt.pcolormesh(1 - self.grid, edgecolors='#777', linewidth=0.5, cmap='gray')
         plt.xticks(range(0, self.grid.shape[1], 5))
@@ -115,7 +115,7 @@ class Grid:
 
 
 class Instance:
-    def __init__(self, width, height, num_agents=3, conglomeration_ratio=0.5, obstacle_ratio=0.1, max_length=10):
+    def __init__(self, width, height, num_agents=3, conglomeration_ratio=0.5, obstacle_ratio=0.1, max_length=20):
         self.grid = Grid(width, height, conglomeration_ratio=conglomeration_ratio, obstacle_ratio=obstacle_ratio)
         self.adj = self.grid.to_adj()
         self.num_agents = num_agents
@@ -135,7 +135,7 @@ class Instance:
         for path in self.paths:
             for idx, node in enumerate(path):
                 plt.plot(node[1]+0.5, node[0]+0.5, 's', markersize=8, color='#aaa')
-                plt.text(node[1]+0.1, node[0]+1, idx)
+                plt.text(node[1]+0.1, node[0]+1, idx+1, fontsize=5)
 
         for pos in self.starting_positions:
             plt.plot(pos[1] + 0.5, pos[0] + 0.5, 's', markersize=8)
@@ -145,8 +145,15 @@ class Instance:
         path = [starting_position]
         while len(path) < max_length:
             neighbors = self.adj[idxes_to_key(path[-1])]
-            next_neighbor = neighbors[np.random.choice(range(len(neighbors)))][0]
+            if len(neighbors) == 0:
+                break
+            idx = np.random.choice(range(len(neighbors)))
+            next_neighbor = neighbors[idx][0]
             while next_neighbor in path:
-                next_neighbor = neighbors[np.random.choice(range(len(neighbors)))][0]
+                neighbors.pop(idx)
+                if len(neighbors) == 0:
+                    return path
+                idx = np.random.choice(range(len(neighbors)))
+                next_neighbor = neighbors[idx][0]
             path.append(next_neighbor)
         return path
