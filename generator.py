@@ -6,6 +6,11 @@ def get_random_boolean_weighted(weight):
     return (np.random.random_sample(1) < weight)[0]
 
 
+def idxes_to_key(idxes):
+    i, j = idxes
+    return f'({i},{j})'
+
+
 class Grid:
     def __init__(self, height, width, obstacle_ratio=0.1, conglomeration_ratio=0.5):
         # Generates an empty grid
@@ -96,33 +101,49 @@ class Grid:
                     continue
                 empty_neighbors = self.empty_neighbors((i, j), also_diagonals=True)
 
-                empty_neighbors = [(self.idxes_to_key(n), self.__get_weight((i, j), n)) for n in empty_neighbors]
-                adj[self.idxes_to_key((i, j))] = empty_neighbors
+                empty_neighbors = [(n, self.__get_weight((i, j), n)) for n in empty_neighbors]
+                adj[idxes_to_key((i, j))] = empty_neighbors
         return adj
 
     def idxes_to_idx(self, idxes):
         i, j = idxes
         return i * self.grid.shape[0] + j
 
-    def idxes_to_key(self, idxes):
-        i, j = idxes
-        return f'({i},{j})'
-
 
 class Instance:
-    def __init__(self, width, height, num_agents=3, conglomeration_ratio=0.5, obstacle_ratio=0.5):
+    def __init__(self, width, height, num_agents=3, conglomeration_ratio=0.5, obstacle_ratio=0.1, max_length=10):
         self.grid = Grid(width, height, conglomeration_ratio=conglomeration_ratio, obstacle_ratio=obstacle_ratio)
+        self.adj = self.grid.to_adj()
         self.num_agents = num_agents
         self.starting_positions = []
+        self.paths = []
         while num_agents > 0:
             starting_position = self.grid.get_random_empty_cell()
             while starting_position in self.starting_positions:
                 starting_position = self.grid.get_random_empty_cell()
             num_agents -= 1
             self.starting_positions.append(starting_position)
+            self.paths.append(self.build_path_from(starting_position, max_length=max_length))
 
     def plot(self):
         self.grid.plot(show=False)
+
+        for path in self.paths:
+            for idx, node in enumerate(path):
+                plt.plot(node[1]+0.5, node[0]+0.5, 's', markersize=8, color='#aaa')
+                plt.text(node[1]+0.1, node[0]+1, idx)
+
         for pos in self.starting_positions:
-            plt.plot(pos[1]+0.5, pos[0]+0.5, '.', markersize=10)
+            plt.plot(pos[1] + 0.5, pos[0] + 0.5, 's', markersize=8)
         plt.show()
+
+    def build_path_from(self, starting_position, max_length):
+        path = [starting_position]
+        while len(path) < max_length:
+            neighbors = self.adj[idxes_to_key(path[-1])]
+            next_neighbor = neighbors[np.random.choice(range(len(neighbors)))][0]
+            while next_neighbor in path:
+                next_neighbor = neighbors[np.random.choice(range(len(neighbors)))][0]
+            path.append(next_neighbor)
+        print(path)
+        return path
