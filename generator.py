@@ -145,5 +145,4 @@ class Instance:
             while next_neighbor in path:
                 next_neighbor = neighbors[np.random.choice(range(len(neighbors)))][0]
             path.append(next_neighbor)
-        print(path)
         return path
