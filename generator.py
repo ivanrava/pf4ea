@@ -84,6 +84,10 @@ class Grid:
         ax = plt.gca()
         ax.invert_yaxis()
         ax.set_aspect('equal')
+        for tick in ax.xaxis.get_majorticklabels():
+            tick.set_horizontalalignment("left")
+        for tick in ax.yaxis.get_majorticklabels():
+            tick.set_verticalalignment("top")
         if show:
             plt.show()
 
