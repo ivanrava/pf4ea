@@ -1,6 +1,6 @@
-from generator import Grid
+from generator import Grid, Instance
 from pprint import pprint
 
-grid = Grid(30, 40, conglomeration_ratio=0.1)
-grid.plot()
-pprint(grid.to_adj())
+instance = Instance(30, 40, conglomeration_ratio=0.1)
+instance.plot()
+# pprint(instance.grid.to_adj())

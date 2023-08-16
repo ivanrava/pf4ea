@@ -19,7 +19,7 @@ class Grid:
         obstacles = self.num_obstacle_cells
         # Adds obstacles
         while obstacles > 0:
-            rand_i, rand_j = self.__get_random_empty_cell()
+            rand_i, rand_j = self.get_random_empty_cell()
             self.grid[rand_i][rand_j] = 1
             obstacles -= 1
             obstacles = self.__add_neighbor((rand_i, rand_j), obstacles, conglomeration_ratio)
@@ -40,7 +40,7 @@ class Grid:
     def empty_neighbors(self, el, also_diagonals=False):
         return [n for n in self.neighbors(el, also_diagonals) if self.grid[n] != 1]
 
-    def __get_random_empty_cell(self):
+    def get_random_empty_cell(self):
         rand_i, rand_j = np.random.randint(self.grid.shape[0]), np.random.randint(self.grid.shape[1])
         while self.grid[rand_i][rand_j] == 1:
             rand_i, rand_j = np.random.randint(self.grid.shape[0]), np.random.randint(self.grid.shape[1])
@@ -70,7 +70,7 @@ class Grid:
                     print('█', end='')
             print()
 
-    def plot(self):
+    def plot(self, show=True):
         plt.title(f'{self.grid.shape[1]} x {self.grid.shape[0]}\nObstacles: {self.num_obstacle_cells}')
         # plt.imshow(1-self.grid, cmap='gray')
         plt.pcolormesh(1 - self.grid, edgecolors='#777', linewidth=0.5, cmap='gray')
@@ -79,7 +79,8 @@ class Grid:
         ax = plt.gca()
         ax.invert_yaxis()
         ax.set_aspect('equal')
-        plt.show()
+        if show:
+            plt.show()
 
     def __get_weight(self, from_cell, to_cell):
         distance = abs(from_cell[0] - to_cell[0]) + abs(from_cell[1] - to_cell[1])
@@ -107,3 +108,21 @@ class Grid:
         i, j = idxes
         return f'({i},{j})'
 
+
+class Instance:
+    def __init__(self, width, height, num_agents=3, conglomeration_ratio=0.5):
+        self.grid = Grid(width, height, conglomeration_ratio=conglomeration_ratio)
+        self.num_agents = num_agents
+        self.starting_positions = []
+        while num_agents > 0:
+            starting_position = self.grid.get_random_empty_cell()
+            while starting_position in self.starting_positions:
+                starting_position = self.grid.get_random_empty_cell()
+            num_agents -= 1
+            self.starting_positions.append(starting_position)
+
+    def plot(self):
+        self.grid.plot(show=False)
+        for pos in self.starting_positions:
+            plt.plot(pos[1]+0.5, pos[0]+0.5, '.', markersize=10)
+        plt.show()
