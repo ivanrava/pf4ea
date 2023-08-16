@@ -110,8 +110,8 @@ class Grid:
 
 
 class Instance:
-    def __init__(self, width, height, num_agents=3, conglomeration_ratio=0.5):
-        self.grid = Grid(width, height, conglomeration_ratio=conglomeration_ratio)
+    def __init__(self, width, height, num_agents=3, conglomeration_ratio=0.5, obstacle_ratio=0.5):
+        self.grid = Grid(width, height, conglomeration_ratio=conglomeration_ratio, obstacle_ratio=obstacle_ratio)
         self.num_agents = num_agents
         self.starting_positions = []
         while num_agents > 0:
