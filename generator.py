@@ -150,7 +150,7 @@ class Instance:
     def build_path_from(self, starting_position, max_length):
         path = [starting_position]
         while len(path) < max_length:
-            neighbors = self.adj[idxes_to_key(path[-1])]
+            neighbors = self.adj[idxes_to_key(path[-1])][:]
             if len(neighbors) == 0:
                 break
             idx = np.random.choice(range(len(neighbors)))
