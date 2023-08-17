@@ -51,6 +51,7 @@ class Grid:
             rand_i, rand_j = np.random.randint(self.grid.shape[0]), np.random.randint(self.grid.shape[1])
         return rand_i, rand_j
 
+    # FIXME: conglomeration=1 should be 1 big block, careful to the borders
     def __add_neighbor(self, starting_from, num_obstacle_cells, conglomeration_ratio):
         if num_obstacle_cells == 0:
             return 0
@@ -125,6 +126,7 @@ class Instance:
                 starting_position = self.grid.get_random_empty_cell()
             num_agents -= 1
             self.starting_positions.append(starting_position)
+            # FIXME: check path collisions
             self.paths.append(self.build_path_from(starting_position, max_length=max_length))
         self.init = self.grid.get_random_empty_cell()
         self.goal = self.grid.get_random_empty_cell()
@@ -153,6 +155,7 @@ class Instance:
                 break
             idx = np.random.choice(range(len(neighbors)))
             next_neighbor = neighbors[idx][0]
+            # FIXME: paths should be overlapping, but endpoint should be unique
             while next_neighbor in path:
                 neighbors.pop(idx)
                 if len(neighbors) == 0:
