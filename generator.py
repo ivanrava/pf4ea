@@ -33,7 +33,7 @@ class Grid:
         (i, j) = el
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
         if also_diagonals:
-            directions += [(1, 1), (-1, -1), (-1, 1), (1, -1)]
+            directions += [(1, 1), (-1, -1), (-1, 1), (1, -1), (0, 0)]
         neighbors = []
         for curr_dir in directions:
             i_d, j_d = curr_dir
@@ -77,7 +77,8 @@ class Grid:
             print()
 
     def plot(self, show=True):
-        plt.title(f'{self.grid.shape[1]} x {self.grid.shape[0]}\nObstacles: {self.num_obstacle_cells} / {self.grid.size}')
+        plt.title(
+            f'{self.grid.shape[1]} x {self.grid.shape[0]}\nObstacles: {self.num_obstacle_cells} / {self.grid.size}')
         plt.pcolormesh(1 - self.grid, edgecolors='#777', linewidth=0.5, cmap='gray')
         plt.xticks(range(0, self.grid.shape[1], 5))
         plt.yticks(range(0, self.grid.shape[0], 2))
@@ -93,7 +94,7 @@ class Grid:
 
     def __get_weight(self, from_cell, to_cell):
         distance = abs(from_cell[0] - to_cell[0]) + abs(from_cell[1] - to_cell[1])
-        return 1 if distance == 1 else np.sqrt(2)
+        return 1 if distance <= 1 else np.sqrt(2)
 
     def to_adj(self):
         adj = {}
@@ -136,14 +137,14 @@ class Instance:
 
         for path in self.paths:
             for idx, node in enumerate(path):
-                plt.plot(node[1]+0.5, node[0]+0.5, 's', markersize=8, color='#aaa')
-                plt.text(node[1]+0.1, node[0]+1, idx+1, fontsize=5)
+                plt.plot(node[1] + 0.5, node[0] + 0.5, 's', markersize=8, color='#aaa')
+                plt.text(node[1] + 0.1, node[0] + 1, idx + 1, fontsize=5)
 
         for pos in self.starting_positions:
             plt.plot(pos[1] + 0.5, pos[0] + 0.5, 's', markersize=8)
 
-        plt.plot(self.init[1]+0.5, self.init[0]+0.5, 'x', markersize=18, color='r')
-        plt.plot(self.goal[1]+0.5, self.goal[0]+0.5, 'x', markersize=18, color='r')
+        plt.plot(self.init[1] + 0.5, self.init[0] + 0.5, 'x', markersize=18, color='r')
+        plt.plot(self.goal[1] + 0.5, self.goal[0] + 0.5, 'x', markersize=18, color='r')
 
         plt.show()
 
