@@ -77,7 +77,6 @@ class Grid:
 
     def plot(self, show=True):
         plt.title(f'{self.grid.shape[1]} x {self.grid.shape[0]}\nObstacles: {self.num_obstacle_cells} / {self.grid.size}')
-        # plt.imshow(1-self.grid, cmap='gray')
         plt.pcolormesh(1 - self.grid, edgecolors='#777', linewidth=0.5, cmap='gray')
         plt.xticks(range(0, self.grid.shape[1], 5))
         plt.yticks(range(0, self.grid.shape[0], 2))
@@ -96,7 +95,6 @@ class Grid:
         return 1 if distance == 1 else np.sqrt(2)
 
     def to_adj(self):
-        # adj = np.zeros(self.grid.size - self.num_obstacle_cells)
         adj = {}
         for i in range(self.grid.shape[0]):
             for j in range(self.grid.shape[1]):
@@ -128,6 +126,8 @@ class Instance:
             num_agents -= 1
             self.starting_positions.append(starting_position)
             self.paths.append(self.build_path_from(starting_position, max_length=max_length))
+        self.init = self.grid.get_random_empty_cell()
+        self.goal = self.grid.get_random_empty_cell()
 
     def plot(self):
         self.grid.plot(show=False)
@@ -139,6 +139,10 @@ class Instance:
 
         for pos in self.starting_positions:
             plt.plot(pos[1] + 0.5, pos[0] + 0.5, 's', markersize=8)
+
+        plt.plot(self.init[1]+0.5, self.init[0]+0.5, 'x', markersize=18, color='r')
+        plt.plot(self.goal[1]+0.5, self.goal[0]+0.5, 'x', markersize=18, color='r')
+
         plt.show()
 
     def build_path_from(self, starting_position, max_length):
