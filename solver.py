@@ -25,6 +25,7 @@ def reach_goal(instance: Instance):
     open_states = {(instance.init, 0)}
     # FIXME: better options?
     g = {(instance.init, 0): 0}
+    # TODO: P is equal to OPEN U CLOSED (p. 55). Maybe we can "delete" it?
     P = {}
 
     # TODO: precalculate
