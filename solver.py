@@ -21,6 +21,7 @@ def reconstruct_path(init: (int, int), goal: (int, int), P, t: int):
     return path
 
 
+# TODO: add "alternative strategy"
 def reach_goal(instance: Instance):
     closed_states = set()
     open_states = {(instance.init, 0)}

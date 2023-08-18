@@ -167,7 +167,7 @@ class Instance:
                 break
             idx = np.random.choice(range(len(neighbors)))
             next_neighbor = neighbors[idx][0]
-            # FIXME: !!!!!!!!!!!! paths should be overlapping, but endpoint should be unique
+            # FIXME: !!!!!!!!!!!! paths can overlap, but endpoint should be unique
             while next_neighbor in path:
                 neighbors.pop(idx)
                 if len(neighbors) == 0:
