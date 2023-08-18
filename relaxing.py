@@ -59,14 +59,20 @@ def is_collision_free(path, other_paths, debug=False):
                 if debug:
                     print(f"COLLISION: 2 agents swapped places on adjacent tiles {query_path(path, t)} and {query_path(other_path, t)}, at instant {t}")
                 return False
-            # FIXME: add diagonal checks
+            # Diagonal collisions
+            delta1 = tuple(abs(np.subtract(query_path(path, t - 1), query_path(other_path, t))))
+            delta2 = tuple(abs(np.subtract(query_path(path, t), query_path(other_path, t - 1))))
+            if delta1 == delta2 and delta1 in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                if debug:
+                    print(f"COLLISION: 2 agents crossed paths simultaneously while going for tiles {query_path(path, t)} and {query_path(other_path, t)}, at instant {t}")
+                return False
     return True
 
 
 def is_pathset_collision_free(pathset):
     is_free = True
     for i in range(len(pathset)):
-        free = is_collision_free(pathset[i], pathset[:i]+pathset[i+1:], True)
+        free = is_collision_free(pathset[i], pathset[:i] + pathset[i + 1:], True)
         if not free:
             is_free = False
     return is_free
