@@ -92,7 +92,7 @@ class Grid:
         if show:
             plt.show()
 
-    def __get_weight(self, from_cell, to_cell):
+    def get_weight(self, from_cell, to_cell):
         distance = abs(from_cell[0] - to_cell[0]) + abs(from_cell[1] - to_cell[1])
         return 1 if distance <= 1 else np.sqrt(2)
 
@@ -105,7 +105,7 @@ class Grid:
                     continue
                 empty_neighbors = self.empty_neighbors((i, j), also_diagonals=True)
 
-                empty_neighbors = [(n, self.__get_weight((i, j), n)) for n in empty_neighbors]
+                empty_neighbors = [(n, self.get_weight((i, j), n)) for n in empty_neighbors]
                 adj[idxes_to_key((i, j))] = empty_neighbors
         return adj
 
@@ -118,6 +118,7 @@ class Instance:
     def __init__(self, width, height, num_agents=3, conglomeration_ratio=0.5, obstacle_ratio=0.1, max_length=20):
         self.grid = Grid(width, height, conglomeration_ratio=conglomeration_ratio, obstacle_ratio=obstacle_ratio)
         self.adj = self.grid.to_adj()
+        self.max_length = max_length
         self.num_agents = num_agents
         self.starting_positions = []
         self.paths = []
@@ -136,21 +137,32 @@ class Instance:
         self.init = self.grid.get_random_empty_cell()
         self.goal = self.grid.get_random_empty_cell()
 
-    def plot(self):
+    def plot_instant(self, t, additional_path):
         self.grid.plot(show=False)
-
-        for path in self.paths:
-            for idx, node in enumerate(path):
-                plt.plot(node[1] + 0.5, node[0] + 0.5, 's', markersize=8, color='#aaa')
-                plt.text(node[1] + 0.1, node[0] + 1, idx + 1, fontsize=5)
+        plt.title(f"t={t}")
 
         for pos in self.starting_positions:
-            plt.plot(pos[1] + 0.5, pos[0] + 0.5, 's', markersize=8)
+            plt.plot(pos[1] + 0.5, pos[0] + 0.5, 'x', markersize=18)
 
-        plt.plot(self.init[1] + 0.5, self.init[0] + 0.5, 'x', markersize=18, color='r')
-        plt.plot(self.goal[1] + 0.5, self.goal[0] + 0.5, 'x', markersize=18, color='r')
+        plt.plot(self.init[1] + 0.5, self.init[0] + 0.5, 'x', markersize=18, color='#ccc')
+        plt.plot(self.goal[1] + 0.5, self.goal[0] + 0.5, '+', markersize=18, color='#ccc')
+
+        plt.gca().set_prop_cycle(None)
+        for path in self.paths:
+            try:
+                plt.plot(path[t][1] + 0.5, path[t][0] + 0.5, 's', markersize=12)
+            except IndexError:
+                plt.plot(path[-1][1] + 0.5, path[-1][0] + 0.5, 's', markersize=12)
+        try:
+            plt.plot(additional_path[t][1] + 0.5, additional_path[t][0] + 0.5, 's', markersize=12, color='#aaa')
+        except IndexError:
+            plt.plot(additional_path[-1][1] + 0.5, additional_path[-1][0] + 0.5, 's', markersize=12, color='#aaa')
 
         plt.show()
+
+    def plot(self, additional_path):
+        for t in range(self.max_length):
+            self.plot_instant(t, additional_path)
 
     def build_path_from(self, starting_position, max_length):
         path = [starting_position]
