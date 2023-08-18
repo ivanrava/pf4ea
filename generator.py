@@ -132,7 +132,7 @@ class Instance:
                 starting_position = self.grid.get_random_empty_cell()
             num_agents -= 1
             self.starting_positions.append(starting_position)
-            # FIXME: check path collisions (end points should be distinct, middle points also at same time)
+            # FIXME: !!!!!!!!! check path collisions (end points should be distinct, middle points also at same time)
             self.paths.append(self.build_path_from(starting_position, max_length=max_length))
         self.init = self.grid.get_random_empty_cell()
         self.goal = self.grid.get_random_empty_cell()
@@ -172,7 +172,7 @@ class Instance:
                 break
             idx = np.random.choice(range(len(neighbors)))
             next_neighbor = neighbors[idx][0]
-            # FIXME: paths should be overlapping, but endpoint should be unique
+            # FIXME: !!!!!!!!!!!! paths should be overlapping, but endpoint should be unique
             while next_neighbor in path:
                 neighbors.pop(idx)
                 if len(neighbors) == 0:
