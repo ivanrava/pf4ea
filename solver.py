@@ -1,4 +1,5 @@
 import generator
+import relaxing
 from generator import Instance
 import numpy as np
 
@@ -35,13 +36,7 @@ def reach_goal(instance: Instance):
 
     while len(open_states) > 0:
         # Find the state in open_states with the lowest f-score
-        min_state = None
-        min_score = np.inf
-        for state in open_states:
-            score = f(state)
-            if score < min_score:
-                min_score = score
-                min_state = state
+        min_state = relaxing.extract_min(open_states, f)
 
         v, t = min_state
         open_states = open_states.difference({(v, t)})
@@ -49,7 +44,7 @@ def reach_goal(instance: Instance):
         if v == instance.goal:
             return reconstruct_path(instance.init, instance.goal, P, t)
         if t < instance.max_length:
-            for n in instance.adj[generator.idxes_to_key(v)]:
+            for n in instance.adj[v]:
                 n, _ = n
                 if (n, t + 1) not in closed_states:
                     traversable = True

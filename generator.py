@@ -6,11 +6,6 @@ def get_random_boolean_weighted(weight):
     return (np.random.random_sample(1) < weight)[0]
 
 
-def idxes_to_key(idxes):
-    i, j = idxes
-    return f'({i},{j})'
-
-
 class Grid:
     def __init__(self, height, width, obstacle_ratio=0.1, conglomeration_ratio=0.5):
         # Generates an empty grid
@@ -106,7 +101,7 @@ class Grid:
                 empty_neighbors = self.empty_neighbors((i, j), also_diagonals=True)
 
                 empty_neighbors = [(n, self.get_weight((i, j), n)) for n in empty_neighbors]
-                adj[idxes_to_key((i, j))] = empty_neighbors
+                adj[(i, j)] = empty_neighbors
         return adj
 
     def idxes_to_idx(self, idxes):
@@ -167,7 +162,7 @@ class Instance:
     def build_path_from(self, starting_position, max_length):
         path = [starting_position]
         while len(path) < max_length:
-            neighbors = self.adj[idxes_to_key(path[-1])][:]
+            neighbors = self.adj[path[-1]][:]
             if len(neighbors) == 0:
                 break
             idx = np.random.choice(range(len(neighbors)))
