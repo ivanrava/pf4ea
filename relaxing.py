@@ -61,3 +61,12 @@ def is_collision_free(path, other_paths, debug=False):
                 return False
             # FIXME: add diagonal checks
     return True
+
+
+def is_pathset_collision_free(pathset):
+    is_free = True
+    for i in range(len(pathset)):
+        free = is_collision_free(pathset[i], pathset[:i]+pathset[i+1:], True)
+        if not free:
+            is_free = False
+    return is_free
