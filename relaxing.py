@@ -36,3 +36,28 @@ def relaxed_path(instance: Instance):
                 d[v] = d[u] + instance.grid.get_weight(u, v)
                 pi[v] = u
     return pi
+
+
+# TODO: apply OOP Python shenanigans
+def query_path(path, t):
+    try:
+        return path[t]
+    except IndexError:
+        return path[-1]
+
+
+def is_collision_free(path, other_paths, debug=False):
+    for t in range(max([len(p) for p in other_paths] + [len(path)])):
+        for other_path in other_paths:
+            if query_path(path, t) == query_path(other_path, t):
+                if debug:
+                    print(f"COLLISION: 2 agents both found on tile {query_path(path, t)} at instant {t}")
+                return False
+            if t == 0:
+                continue
+            if query_path(path, t) == query_path(other_path, t-1) and query_path(other_path, t) == query_path(path, t-1):
+                if debug:
+                    print(f"COLLISION: 2 agents swapped places on adjacent tiles {query_path(path, t)} and {query_path(other_path, t)}, at instant {t}")
+                return False
+            # FIXME: add diagonal checks
+    return True
