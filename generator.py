@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+import relaxing
+
 
 def get_random_boolean_weighted(weight):
     return (np.random.random_sample(1) < weight)[0]
@@ -135,8 +137,11 @@ class Instance:
                 starting_position = self.grid.get_random_empty_cell()
             num_agents -= 1
             self.starting_positions.append(starting_position)
-            # FIXME: !!!!!!!!! check path collisions (end points should be distinct, middle points also at same time)
-            self.paths.append(self.build_path_from(starting_position, max_length=max_length))
+            # Adds a new_path, but first it has to be generated without collisions
+            new_path = self.build_path_from(starting_position, max_length=max_length)
+            while not relaxing.is_collision_free(new_path, self.paths):
+                new_path = self.build_path_from(starting_position, max_length=max_length)
+            self.paths.append(new_path)
         self.init = self.grid.get_random_empty_cell()
         self.goal = self.grid.get_random_empty_cell()
 

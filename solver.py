@@ -49,9 +49,18 @@ def reach_goal(instance: Instance):
                 n, _ = n
                 if (n, t + 1) not in closed_states:
                     traversable = True
+                    # Check collisions with other agents
                     for path in instance.paths:
+                        # 1. An agent is going to the same cell (n) on next tick (t+1)
+                        # 2. An agent is going to my cell (v) on next tick (t+1), and previously was on my next cell (n)
                         if path[t + 1] == n or (path[t + 1] == v and path[t] == n):
                             traversable = False
+                        # 3. The agents are "crossing" paths ("diagonal collision")
+                        else:
+                            delta1 = tuple(abs(np.subtract(v, path[t+1])))
+                            delta2 = tuple(abs(np.subtract(n, path[t])))
+                            if delta1 == delta2 and delta1 in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                                traversable = False
                     if traversable:
                         if (n, t + 1) not in g or g[min_state] + instance.grid.get_weight(v, n) < g[(n, t + 1)]:
                             P[(n, t + 1)] = min_state
