@@ -137,17 +137,13 @@ class Instance:
 
         # FIXME: add check for max_length parameter (it has an upper bound)
 
-        while num_agents > 0:
-            starting_position = self.grid.get_random_empty_cell()
-            # Avoid duplicate starting positions
-            while starting_position in self.starting_positions:
-                starting_position = self.grid.get_random_empty_cell()
-            num_agents -= 1
-            self.starting_positions.append(starting_position)
-            # Adds a new_path, but first it has to be generated without collisions
-            new_path = self.build_path_from(starting_position, max_length=agent_path_length, avoid_backtracking=avoid_backtracking)
+        for _ in range(num_agents):
+            # Tries to build a collision-free path
+            new_path = self.build_path_from(self.grid.get_random_empty_cell(), max_length=agent_path_length, avoid_backtracking=avoid_backtracking)
             while not relaxing.is_collision_free(new_path, self.paths):
-                new_path = self.build_path_from(starting_position, max_length=agent_path_length, avoid_backtracking=avoid_backtracking)
+                new_path = self.build_path_from(self.grid.get_random_empty_cell(), max_length=agent_path_length, avoid_backtracking=avoid_backtracking)
+            # Appends the path
+            self.starting_positions.append(new_path[0])
             self.paths.append(new_path)
         self.init = self.grid.get_random_empty_cell()
         self.goal = self.grid.get_random_empty_cell()
