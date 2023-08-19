@@ -25,7 +25,6 @@ def relaxed_path(instance: Instance):
     S = set()
     Q = set(instance.adj.keys())
     while len(Q) > 0:
-        print(len(Q))
         u = extract_min(Q, lambda x: d[x] if x in d else np.inf)
         # TODO: very quick and dirty, can be optimized
         Q = Q.difference({u})
