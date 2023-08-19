@@ -148,7 +148,6 @@ class Instance:
             new_path = self.build_path_from(starting_position, max_length=agent_path_length, avoid_backtracking=avoid_backtracking)
             while not relaxing.is_collision_free(new_path, self.paths):
                 new_path = self.build_path_from(starting_position, max_length=agent_path_length, avoid_backtracking=avoid_backtracking)
-            print(new_path)
             self.paths.append(new_path)
         self.init = self.grid.get_random_empty_cell()
         self.goal = self.grid.get_random_empty_cell()
