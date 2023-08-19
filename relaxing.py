@@ -61,14 +61,14 @@ class Relaxer:
             tick.set_verticalalignment("top")
         plt.show()
 
-    # FIXME: it can be memoized
+    # FIXME #1: it can be memoized
     def relaxed_path_from(self, starting_cell):
         path = Path([starting_cell])
         while path[-1] != self.instance.goal:
             path.append(self.pi[path[-1]])
         return path
 
-    # FIXME: it can be memoized
+    # FIXME #1: it can be memoized
     def relaxed_heuristic(self, v: (int, int)):
         path = [v]
         cost = 0

@@ -4,6 +4,7 @@ from generator import Grid, Instance
 import numpy as np
 from pprint import pprint
 
+# FIXME: what to do here?
 # Seed 2,11,16,18,24,31,37,42,47,48,51,67,71,73,74,80,87,90,91,92: grey stops and another overlaps it.
 # Seed 29,30: grey stop and purple stop collide.
 # Seed 48: start and goal are the same (allowed, not allowed?)

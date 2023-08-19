@@ -4,7 +4,7 @@ from generator import Instance
 import numpy as np
 
 
-# TODO: precalculate
+# TODO #1: precalculate
 def h(n, goal):
     dx = abs(n[1] - goal[1])
     dy = abs(n[0] - goal[0])
@@ -24,12 +24,12 @@ def reconstruct_path(init: (int, int), goal: (int, int), P, t: int) -> generator
 def reach_goal(instance: Instance):
     closed_states = set()
     open_states = {(instance.init, 0)}
-    # FIXME: better options?
+    # FIXME: better options for this data structure?
     g = {(instance.init, 0): 0}
     # TODO: P is equal to OPEN U CLOSED (p. 55). Maybe we can "delete" it?
     P = {}
 
-    # TODO: precalculate
+    # TODO #1: precalculate
     def f(state: ((int, int), int)):
         v, t = state
         return g[state] + h(v, instance.goal) if state in g else np.inf
@@ -73,23 +73,23 @@ def reach_goal(instance: Instance):
     return None
 
 
-# FIXME: maybe factorize into one function with a boolean switch?
+# FIXME #2: maybe factorize into one function with a boolean switch?
 def reach_goal_alternative(instance: Instance):
     # Starts the relaxer
     relaxer = relaxing.Relaxer(instance)
 
     closed_states = set()
     open_states = {(instance.init, 0)}
-    # FIXME: better options?
+    # FIXME: better options for this data structure?
     g = {(instance.init, 0): 0}
     # TODO: P is equal to OPEN U CLOSED (p. 55). Maybe we can "delete" it?
     P = {}
 
-    # TODO: precalculate
+    # TODO #1: precalculate
     def f(state: ((int, int), int)):
         v, t = state
         # Here we use the heuristic, it needs to be changed in using the relaxed path
-        # FIXME: not sure if correct, but we should memoize anyway when we have 'n' in scope
+        # FIXME #1: not sure if correct, but we should memoize anyway when we have 'n' in scope
         return g[state] + relaxer.relaxed_heuristic(v) if state in g else np.inf
 
     while len(open_states) > 0:
