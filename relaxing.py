@@ -54,7 +54,9 @@ def is_collision_free(path: Path, other_paths: [Path], debug=False):
             # Diagonal collisions
             delta1 = tuple(abs(np.subtract(path[t - 1], other_path[t])))
             delta2 = tuple(abs(np.subtract(path[t], other_path[t - 1])))
-            if delta1 == delta2 and delta1 in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+            delta3 = tuple(abs(np.subtract(path[t-1], path[t])))
+            delta4 = tuple(abs(np.subtract(other_path[t-1], other_path[t])))
+            if delta3 == delta4 == (1, 1) and delta1 == delta2 and delta1 in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                 if debug:
                     print(f"COLLISION: crossing while going for tiles {path[t]} and {other_path[t]}, at instant {t}")
                 return False

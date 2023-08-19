@@ -59,7 +59,9 @@ def reach_goal(instance: Instance):
                         else:
                             delta1 = tuple(abs(np.subtract(v, path[t+1])))
                             delta2 = tuple(abs(np.subtract(n, path[t])))
-                            if delta1 == delta2 and delta1 in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                            delta3 = tuple(abs(np.subtract(path[t], path[t+1])))
+                            delta4 = tuple(abs(np.subtract(v, n)))
+                            if delta3 == delta4 == (1, 1) and delta1 == delta2 and delta1 in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                                 traversable = False
                     if traversable:
                         if (n, t + 1) not in g or g[min_state] + instance.grid.get_weight(v, n) < g[(n, t + 1)]:
