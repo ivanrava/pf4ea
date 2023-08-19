@@ -11,13 +11,10 @@ if __name__ == '__main__':
     np.random.seed(19)
     instance = Instance(10, 8, conglomeration_ratio=0.4, obstacle_ratio=0.3, num_agents=5)
 
-    pi, d = relaxing.relaxed_path(instance)
-    relaxing.plot_dijkstra(instance, pi, d)
-
-    path = solver.reach_goal(instance)
+    path = solver.reach_goal_alternative(instance)
     if path is not None:
         print(":) REACHED!")
-        # instance.plot(path)
+        instance.plot(path)
         pathset = [path] + instance.paths
         relaxing.is_pathset_collision_free(pathset)
     else:

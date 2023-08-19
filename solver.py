@@ -21,7 +21,6 @@ def reconstruct_path(init: (int, int), goal: (int, int), P, t: int) -> generator
     return path
 
 
-# TODO: add "alternative strategy"
 def reach_goal(instance: Instance):
     closed_states = set()
     open_states = {(instance.init, 0)}
@@ -44,6 +43,71 @@ def reach_goal(instance: Instance):
         closed_states = closed_states.union({(v, t)})
         if v == instance.goal:
             return reconstruct_path(instance.init, instance.goal, P, t)
+        if t < instance.max_length:
+            for n in instance.adj[v]:
+                n, _ = n
+                if (n, t + 1) not in closed_states:
+                    traversable = True
+                    # Check collisions with other agents
+                    for path in instance.paths:
+                        # 1. An agent is going to the same cell (n) on next tick (t+1)
+                        # 2. An agent is going to my cell (v) on next tick (t+1), and previously was on my next cell (n)
+                        if path[t + 1] == n or (path[t + 1] == v and path[t] == n):
+                            traversable = False
+                        # 3. The agents are "crossing" paths ("diagonal collision")
+                        else:
+                            delta1 = tuple(abs(np.subtract(v, path[t+1])))
+                            delta2 = tuple(abs(np.subtract(n, path[t])))
+                            delta3 = tuple(abs(np.subtract(path[t], path[t+1])))
+                            delta4 = tuple(abs(np.subtract(v, n)))
+                            if delta3 == delta4 == (1, 1) and delta1 == delta2 and delta1 in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                                traversable = False
+                    if traversable:
+                        if (n, t + 1) not in g or g[min_state] + instance.grid.get_weight(v, n) < g[(n, t + 1)]:
+                            P[(n, t + 1)] = min_state
+                            g[(n, t + 1)] = g[min_state] + instance.grid.get_weight(v, n)
+                            # ...precalculate f
+                        if (n, t + 1) not in open_states:
+                            open_states = open_states.union({(n, t + 1)})
+
+    return None
+
+
+# FIXME: maybe factorize into one function with a boolean switch?
+def reach_goal_alternative(instance: Instance):
+    # Starts the relaxer
+    relaxer = relaxing.Relaxer(instance)
+
+    closed_states = set()
+    open_states = {(instance.init, 0)}
+    # FIXME: better options?
+    g = {(instance.init, 0): 0}
+    # TODO: P is equal to OPEN U CLOSED (p. 55). Maybe we can "delete" it?
+    P = {}
+
+    # TODO: precalculate
+    def f(state: ((int, int), int)):
+        v, t = state
+        # Here we use the heuristic, it needs to be changed in using the relaxed path
+        # FIXME: not sure if correct, but we should memoize anyway when we have 'n' in scope
+        return g[state] + relaxer.relaxed_heuristic(v) if state in g else np.inf
+
+    while len(open_states) > 0:
+        # Find the state in open_states with the lowest f-score
+        min_state = relaxing.extract_min(open_states, f)
+
+        v, t = min_state
+        open_states = open_states.difference({(v, t)})
+        closed_states = closed_states.union({(v, t)})
+        if v == instance.goal:
+            return reconstruct_path(instance.init, instance.goal, P, t)
+
+        # Bulk of the alternative strategy
+        relaxed_path = relaxer.relaxed_path_from(v)
+        if relaxing.is_collision_free(relaxed_path, instance.paths):
+            # [1:] or there is a double vertex at the middle (the first reaches v, and the second restarts from v)
+            return reconstruct_path(instance.init, v, P, t) + relaxed_path[1:]
+
         if t < instance.max_length:
             for n in instance.adj[v]:
                 n, _ = n

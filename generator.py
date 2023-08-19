@@ -15,6 +15,9 @@ class Path(list):
         except IndexError:
             return super().__getitem__(-1)
 
+    def __add__(self, other):
+        return Path([x for x in self] + [x for x in other])
+
 
 class Grid:
     def __init__(self, height, width, obstacle_ratio=0.1, conglomeration_ratio=0.5):
