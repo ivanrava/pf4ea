@@ -13,7 +13,7 @@ def h(n, goal):
 
 def reconstruct_path(init: (int, int), goal: (int, int), P, t: int) -> generator.Path:
     path = generator.Path([goal])
-    while path[-1] != init:
+    while path[-1] != init or t != 0:
         previous = P[(path[-1], t)]
         path.append(previous[0])
         t -= 1
