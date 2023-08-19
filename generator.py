@@ -159,7 +159,7 @@ class Instance:
         for path in self.paths:
             plt.plot(path[t][1] + 0.5, path[t][0] + 0.5, 's', markersize=12)
 
-        plt.plot(additional_path[t][1] + 0.5, additional_path[t][0] + 0.5, 's', markersize=12, color='#aaa')
+        plt.plot(additional_path[t][1] + 0.5, additional_path[t][0] + 0.5, '.', markersize=20, color='#aaa')
 
         plt.show()
 
