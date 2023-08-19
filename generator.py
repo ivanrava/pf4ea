@@ -34,6 +34,7 @@ class Grid:
             obstacles -= 1
             obstacles = self.__add_neighbor((rand_i, rand_j), obstacles, conglomeration_ratio)
 
+    # FIXME: should we allow movement across "diagonal obstacles"?
     def neighbors(self, el, also_diagonals):
         (i, j) = el
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
@@ -120,7 +121,13 @@ class Grid:
 
 
 class Instance:
-    def __init__(self, width, height, num_agents=3, conglomeration_ratio=0.5, obstacle_ratio=0.1, max_length=20):
+    def __init__(self, width, height,
+                 num_agents=3,
+                 conglomeration_ratio=0.5,
+                 obstacle_ratio=0.1,
+                 max_length=20,
+                 agent_path_length=10,
+                 avoid_backtracking=False):
         self.grid = Grid(width, height, conglomeration_ratio=conglomeration_ratio, obstacle_ratio=obstacle_ratio)
         self.adj = self.grid.to_adj()
         self.max_length = max_length
@@ -138,9 +145,10 @@ class Instance:
             num_agents -= 1
             self.starting_positions.append(starting_position)
             # Adds a new_path, but first it has to be generated without collisions
-            new_path = self.build_path_from(starting_position, max_length=max_length)
+            new_path = self.build_path_from(starting_position, max_length=agent_path_length, avoid_backtracking=avoid_backtracking)
             while not relaxing.is_collision_free(new_path, self.paths):
-                new_path = self.build_path_from(starting_position, max_length=max_length)
+                new_path = self.build_path_from(starting_position, max_length=agent_path_length, avoid_backtracking=avoid_backtracking)
+            print(new_path)
             self.paths.append(new_path)
         self.init = self.grid.get_random_empty_cell()
         self.goal = self.grid.get_random_empty_cell()
@@ -164,10 +172,10 @@ class Instance:
         plt.show()
 
     def plot(self, additional_path: Path):
-        for t in range(self.max_length):
+        for t in range(max([len(path) for path in self.paths] + [len(additional_path)])):
             self.plot_instant(t, additional_path)
 
-    def build_path_from(self, starting_position, max_length: int, avoid_backtracking: bool = True) -> Path:
+    def build_path_from(self, starting_position, max_length: int, avoid_backtracking: bool = False) -> Path:
         path = Path([starting_position])
         while len(path) < max_length:
             neighbors = self.adj[path[-1]][:]
