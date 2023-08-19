@@ -167,7 +167,7 @@ class Instance:
         for t in range(self.max_length):
             self.plot_instant(t, additional_path)
 
-    def build_path_from(self, starting_position, max_length: int) -> Path:
+    def build_path_from(self, starting_position, max_length: int, avoid_backtracking: bool = True) -> Path:
         path = Path([starting_position])
         while len(path) < max_length:
             neighbors = self.adj[path[-1]][:]
@@ -175,12 +175,13 @@ class Instance:
                 break
             idx = np.random.choice(range(len(neighbors)))
             next_neighbor = neighbors[idx][0]
-            # FIXME: !!!!!!!!!!!! paths can overlap, but endpoint should be unique
-            while next_neighbor in path:
-                neighbors.pop(idx)
-                if len(neighbors) == 0:
-                    return path
-                idx = np.random.choice(range(len(neighbors)))
-                next_neighbor = neighbors[idx][0]
+            # Optional: forbids agent from walking again down the same cells
+            if avoid_backtracking:
+                while next_neighbor in path:
+                    neighbors.pop(idx)
+                    if len(neighbors) == 0:
+                        return path
+                    idx = np.random.choice(range(len(neighbors)))
+                    next_neighbor = neighbors[idx][0]
             path.append(next_neighbor)
         return path
