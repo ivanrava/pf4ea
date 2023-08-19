@@ -1,5 +1,6 @@
 from generator import Instance, Path
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def extract_min(structure, function):
@@ -34,7 +35,24 @@ def relaxed_path(instance: Instance):
             if d[v] if v in d else np.inf > d[u] if u in d else np.inf + instance.grid.get_weight(u, v):
                 d[v] = d[u] + instance.grid.get_weight(u, v)
                 pi[v] = u
-    return pi
+    return pi, d
+
+
+def plot_dijkstra(instance, pi, d):
+    new_grid = np.copy(instance.grid.grid)
+    for cell, cost in d.items():
+        new_grid[cell] = cost
+    plt.pcolormesh(new_grid, edgecolors='#777', linewidth=0.5, cmap='gray')
+    plt.xticks(range(0, new_grid.shape[1], 5))
+    plt.yticks(range(0, new_grid.shape[0], 2))
+    ax = plt.gca()
+    ax.invert_yaxis()
+    ax.set_aspect('equal')
+    for tick in ax.xaxis.get_majorticklabels():
+        tick.set_horizontalalignment("left")
+    for tick in ax.yaxis.get_majorticklabels():
+        tick.set_verticalalignment("top")
+    plt.show()
 
 
 def is_collision_free(path: Path, other_paths: [Path], debug=False):
@@ -53,8 +71,8 @@ def is_collision_free(path: Path, other_paths: [Path], debug=False):
             # Diagonal collisions
             delta1 = tuple(abs(np.subtract(path[t - 1], other_path[t])))
             delta2 = tuple(abs(np.subtract(path[t], other_path[t - 1])))
-            delta3 = tuple(abs(np.subtract(path[t-1], path[t])))
-            delta4 = tuple(abs(np.subtract(other_path[t-1], other_path[t])))
+            delta3 = tuple(abs(np.subtract(path[t - 1], path[t])))
+            delta4 = tuple(abs(np.subtract(other_path[t - 1], other_path[t])))
             if delta3 == delta4 == (1, 1) and delta1 == delta2 and delta1 in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                 if debug:
                     print(f"COLLISION: crossing while going for tiles {path[t]} and {other_path[t]}, at instant {t}")

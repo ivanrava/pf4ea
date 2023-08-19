@@ -10,6 +10,10 @@ from pprint import pprint
 if __name__ == '__main__':
     np.random.seed(19)
     instance = Instance(10, 8, conglomeration_ratio=0.4, obstacle_ratio=0.3, num_agents=5)
+
+    pi, d = relaxing.relaxed_path(instance)
+    relaxing.plot_dijkstra(instance, pi, d)
+
     path = solver.reach_goal(instance)
     if path is not None:
         print(":) REACHED!")
