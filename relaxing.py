@@ -1,4 +1,4 @@
-from generator import Instance
+from generator import Instance, Path
 import numpy as np
 
 
@@ -38,33 +38,25 @@ def relaxed_path(instance: Instance):
     return pi
 
 
-# TODO: apply OOP Python shenanigans
-def query_path(path, t):
-    try:
-        return path[t]
-    except IndexError:
-        return path[-1]
-
-
-def is_collision_free(path, other_paths, debug=False):
+def is_collision_free(path: Path, other_paths: [Path], debug=False):
     for t in range(max([len(p) for p in other_paths] + [len(path)])):
         for other_path in other_paths:
-            if query_path(path, t) == query_path(other_path, t):
+            if path[t] == other_path[t]:
                 if debug:
-                    print(f"COLLISION: 2 agents both found on tile {query_path(path, t)} at instant {t}")
+                    print(f"COLLISION: 2 agents both found on tile {path[t]} at instant {t}")
                 return False
             if t == 0:
                 continue
-            if query_path(path, t) == query_path(other_path, t-1) and query_path(other_path, t) == query_path(path, t-1):
+            if path[t] == other_path[t - 1] and other_path[t] == path[t - 1]:
                 if debug:
-                    print(f"COLLISION: 2 agents swapped places on adjacent tiles {query_path(path, t)} and {query_path(other_path, t)}, at instant {t}")
+                    print(f"COLLISION: swapped places on adjacent tiles {path[t]} and {other_path[t]}, at instant {t}")
                 return False
             # Diagonal collisions
-            delta1 = tuple(abs(np.subtract(query_path(path, t - 1), query_path(other_path, t))))
-            delta2 = tuple(abs(np.subtract(query_path(path, t), query_path(other_path, t - 1))))
+            delta1 = tuple(abs(np.subtract(path[t - 1], other_path[t])))
+            delta2 = tuple(abs(np.subtract(path[t], other_path[t - 1])))
             if delta1 == delta2 and delta1 in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                 if debug:
-                    print(f"COLLISION: 2 agents crossed paths simultaneously while going for tiles {query_path(path, t)} and {query_path(other_path, t)}, at instant {t}")
+                    print(f"COLLISION: crossing while going for tiles {path[t]} and {other_path[t]}, at instant {t}")
                 return False
     return True
 

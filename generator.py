@@ -6,6 +6,14 @@ def get_random_boolean_weighted(weight):
     return (np.random.random_sample(1) < weight)[0]
 
 
+class Path(list):
+    def __getitem__(self, t):
+        try:
+            return super().__getitem__(t)
+        except IndexError:
+            return super().__getitem__(-1)
+
+
 class Grid:
     def __init__(self, height, width, obstacle_ratio=0.1, conglomeration_ratio=0.5):
         # Generates an empty grid
@@ -132,7 +140,7 @@ class Instance:
         self.init = self.grid.get_random_empty_cell()
         self.goal = self.grid.get_random_empty_cell()
 
-    def plot_instant(self, t, additional_path):
+    def plot_instant(self, t, additional_path: Path):
         self.grid.plot(show=False)
         plt.title(f"t={t}")
 
@@ -144,23 +152,18 @@ class Instance:
 
         plt.gca().set_prop_cycle(None)
         for path in self.paths:
-            try:
-                plt.plot(path[t][1] + 0.5, path[t][0] + 0.5, 's', markersize=12)
-            except IndexError:
-                plt.plot(path[-1][1] + 0.5, path[-1][0] + 0.5, 's', markersize=12)
-        try:
-            plt.plot(additional_path[t][1] + 0.5, additional_path[t][0] + 0.5, 's', markersize=12, color='#aaa')
-        except IndexError:
-            plt.plot(additional_path[-1][1] + 0.5, additional_path[-1][0] + 0.5, 's', markersize=12, color='#aaa')
+            plt.plot(path[t][1] + 0.5, path[t][0] + 0.5, 's', markersize=12)
+
+        plt.plot(additional_path[t][1] + 0.5, additional_path[t][0] + 0.5, 's', markersize=12, color='#aaa')
 
         plt.show()
 
-    def plot(self, additional_path):
+    def plot(self, additional_path: Path):
         for t in range(self.max_length):
             self.plot_instant(t, additional_path)
 
-    def build_path_from(self, starting_position, max_length):
-        path = [starting_position]
+    def build_path_from(self, starting_position, max_length: int) -> Path:
+        path = Path([starting_position])
         while len(path) < max_length:
             neighbors = self.adj[path[-1]][:]
             if len(neighbors) == 0:

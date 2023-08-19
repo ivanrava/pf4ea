@@ -11,8 +11,8 @@ def h(n, goal):
     return dx + dy + (np.sqrt(2) - 2) * min(dx, dy)
 
 
-def reconstruct_path(init: (int, int), goal: (int, int), P, t: int):
-    path = [goal]
+def reconstruct_path(init: (int, int), goal: (int, int), P, t: int) -> generator.Path:
+    path = generator.Path([goal])
     while path[-1] != init:
         previous = P[(path[-1], t)]
         path.append(previous[0])

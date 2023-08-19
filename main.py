@@ -7,7 +7,10 @@ from pprint import pprint
 np.random.seed(40)
 instance = Instance(10, 8, conglomeration_ratio=0.4, obstacle_ratio=0.3, num_agents=5)
 path = solver.reach_goal(instance)
-instance.plot(path)
+if path is not None:
+    instance.plot(path)
+else:
+    print("Unreachable")
 # print(relaxing.relaxed_path(instance))
 
 pathset = [path] + instance.paths
