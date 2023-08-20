@@ -1,15 +1,9 @@
+import collisions
 import generator
-import relaxing
+import utils
 from generator import Instance
 import numpy as np
 from collections.abc import Callable
-
-
-# TODO #1: precalculate
-def h_diagonal(n, goal):
-    dx = abs(n[1] - goal[1])
-    dy = abs(n[0] - goal[0])
-    return dx + dy + (np.sqrt(2) - 2) * min(dx, dy)
 
 
 def reconstruct_path(init: (int, int), goal: (int, int), P, t: int) -> generator.Path:
@@ -24,7 +18,9 @@ def reconstruct_path(init: (int, int), goal: (int, int), P, t: int) -> generator
 
 def reach_goal(instance: Instance, h: Callable[[(int, int), (int, int)], float], relaxer=None):
     if relaxer is not None:
-        h = lambda from_vertex, to_vertex: relaxer.relaxed_heuristic(from_vertex)
+        # Redefines heuristic to use the relaxed paths
+        def h(from_vertex, _):
+            return relaxer.relaxed_heuristic(from_vertex)
     else:
         # TODO: where to put this?
         # Safety check for starting position collisions. Should be moved elsewhere?
@@ -42,7 +38,7 @@ def reach_goal(instance: Instance, h: Callable[[(int, int), (int, int)], float],
 
     while len(open_states) > 0:
         # Find the state in open_states with the lowest f-score
-        min_state = relaxing.extract_min(open_states, lambda vertex: f[vertex] if vertex in f else np.inf)
+        min_state = utils.extract_min(open_states, lambda vertex: f[vertex] if vertex in f else np.inf)
 
         v, t = min_state
         open_states = open_states.difference({(v, t)})
@@ -52,7 +48,7 @@ def reach_goal(instance: Instance, h: Callable[[(int, int), (int, int)], float],
         if relaxer is not None:
             # Bulk of the alternative strategy
             relaxed_path = relaxer.relaxed_path_from(v)
-            if relaxing.is_collision_free(relaxed_path, instance.paths):
+            if collisions.is_collision_free(relaxed_path, instance.paths):
                 # [1:] or there is a double vertex at the middle (the first reaches v, and the second restarts from v)
                 return reconstruct_path(instance.init, v, P, t) + relaxed_path[1:]
         if t < instance.max_length:

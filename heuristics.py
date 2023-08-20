@@ -1,17 +1,14 @@
+import utils
 from generator import Instance, Path
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-def extract_min(structure, function):
-    min_el = None
-    min_score = np.inf
-    for el in structure:
-        score = function(el)
-        if score < min_score:
-            min_score = score
-            min_el = el
-    return min_el
+# TODO #1: precalculate
+def h_diagonal(n, goal):
+    dx = abs(n[1] - goal[1])
+    dy = abs(n[0] - goal[0])
+    return dx + dy + (np.sqrt(2) - 2) * min(dx, dy)
 
 
 class Relaxer:
@@ -33,7 +30,7 @@ class Relaxer:
         S = set()
         Q = set(instance.adj.keys())
         while len(Q) > 0:
-            u = extract_min(Q, lambda x: d[x] if x in d else np.inf)
+            u = utils.extract_min(Q, lambda x: d[x] if x in d else np.inf)
             # TODO: very quick and dirty, can be optimized
             Q = Q.difference({u})
             S = S.union({u})
@@ -77,36 +74,3 @@ class Relaxer:
             cost += self.d[path[-1]]
         return cost
 
-
-def is_collision_free(path: Path, other_paths: [Path], debug=False):
-    for t in range(max([len(p) for p in other_paths] + [len(path)])):
-        for other_path in other_paths:
-            if path[t] == other_path[t]:
-                if debug:
-                    print(f"COLLISION: 2 agents both found on tile {path[t]} at instant {t}")
-                return False
-            if t == 0:
-                continue
-            if path[t] == other_path[t - 1] and other_path[t] == path[t - 1]:
-                if debug:
-                    print(f"COLLISION: swapped places on adjacent tiles {path[t]} and {other_path[t]}, at instant {t}")
-                return False
-            # Diagonal collisions
-            delta1 = tuple(abs(np.subtract(path[t - 1], other_path[t])))
-            delta2 = tuple(abs(np.subtract(path[t], other_path[t - 1])))
-            delta3 = tuple(abs(np.subtract(path[t - 1], path[t])))
-            delta4 = tuple(abs(np.subtract(other_path[t - 1], other_path[t])))
-            if delta3 == delta4 == (1, 1) and delta1 == delta2 and delta1 in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-                if debug:
-                    print(f"COLLISION: crossing while going for tiles {path[t]} and {other_path[t]}, at instant {t}")
-                return False
-    return True
-
-
-def is_pathset_collision_free(pathset):
-    is_free = True
-    for i in range(len(pathset)):
-        free = is_collision_free(pathset[i], pathset[:i] + pathset[i + 1:], True)
-        if not free:
-            is_free = False
-    return is_free

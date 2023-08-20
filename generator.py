@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-import relaxing
+import collisions
 
 
 def get_random_boolean_weighted(weight):
@@ -143,7 +143,7 @@ class Instance:
         for _ in range(num_agents):
             # Tries to build a collision-free path
             new_path = self.build_path_from(self.grid.get_random_empty_cell(), max_length=agent_path_length, avoid_backtracking=avoid_backtracking)
-            while not relaxing.is_collision_free(new_path, self.paths):
+            while not collisions.is_collision_free(new_path, self.paths):
                 new_path = self.build_path_from(self.grid.get_random_empty_cell(), max_length=agent_path_length, avoid_backtracking=avoid_backtracking)
             # Appends the path
             self.starting_positions.append(new_path[0])
