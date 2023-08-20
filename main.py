@@ -3,6 +3,7 @@ import heuristics
 import solver
 from generator import Instance
 import numpy as np
+from timeit import default_timer as timer
 from pprint import pprint
 
 # FIXME: what to do here?
@@ -11,11 +12,20 @@ from pprint import pprint
 # Seed 48: start and goal are the same (allowed, not allowed?)
 if __name__ == '__main__':
     np.random.seed(19)
-    instance = Instance(10, 8, conglomeration_ratio=0.4, obstacle_ratio=0.3, num_agents=5)
 
+    start = timer()
+    instance = Instance(10, 8, conglomeration_ratio=0.4, obstacle_ratio=0.3, num_agents=5)
+    end = timer()
+    print(f"Instance generation: {end-start} s")
+
+    start = timer()
     # path, closed_states, inserted_states = solver.reach_goal(instance, heuristics.Diagonal(instance))
     path, closed_states, inserted_states = solver.reach_goal(instance, heuristics.DijkstraRelaxer(instance))
+    end = timer()
+    print(f"Instance resolution: {end-start} s")
+
     print(len(path), instance.grid.get_path_cost(path), closed_states, inserted_states, path.waits())
+
     if path is not None:
         print(":) REACHED!")
         instance.plot(path)
