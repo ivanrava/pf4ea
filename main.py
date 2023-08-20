@@ -13,8 +13,8 @@ if __name__ == '__main__':
     np.random.seed(19)
     instance = Instance(10, 8, conglomeration_ratio=0.4, obstacle_ratio=0.3, num_agents=5)
 
-    path = solver.reach_goal(instance, heuristics.h_diagonal, heuristics.Relaxer(instance))
-    # path = solver.reach_goal(instance, heuristics.h_diagonal)
+    # path = solver.reach_goal(instance, heuristics.Diagonal(instance))
+    path = solver.reach_goal(instance, heuristics.DijkstraRelaxer(instance))
     if path is not None:
         print(":) REACHED!")
         instance.plot(path)

@@ -3,7 +3,8 @@ import generator
 import utils
 from generator import Instance
 import numpy as np
-from collections.abc import Callable
+
+from heuristics import Heuristic
 
 
 def reconstruct_path(init: (int, int), goal: (int, int), P, t: int) -> generator.Path:
@@ -16,16 +17,11 @@ def reconstruct_path(init: (int, int), goal: (int, int), P, t: int) -> generator
     return path
 
 
-def reach_goal(instance: Instance, h: Callable[[(int, int), (int, int)], float], relaxer=None):
-    if relaxer is not None:
-        # Redefines heuristic to use the relaxed paths
-        def h(from_vertex, _):
-            return relaxer.relaxed_heuristic(from_vertex)
-    else:
-        # TODO: where to put this?
-        # Safety check for starting position collisions. Should be moved elsewhere?
-        if instance.init in instance.starting_positions:
-            return None
+def reach_goal(instance: Instance, heuristic: Heuristic, relaxer = None):
+    # TODO: where to put this? Should be only called without the relaxed paths collision checker
+    # Safety check for starting position collisions. Should be moved elsewhere?
+    if instance.init in instance.starting_positions:
+        return None
 
     closed_states = set()
     open_states = {(instance.init, 0)}
@@ -34,7 +30,7 @@ def reach_goal(instance: Instance, h: Callable[[(int, int), (int, int)], float],
     # TODO: P is equal to OPEN U CLOSED (p. 55). Maybe we can "delete" it?
     P = {}
 
-    f = {(instance.init, 0): h(instance.init, instance.goal)}
+    f = {(instance.init, 0): heuristic.heuristic(instance.init)}
 
     while len(open_states) > 0:
         # Find the state in open_states with the lowest f-score
@@ -45,12 +41,15 @@ def reach_goal(instance: Instance, h: Callable[[(int, int), (int, int)], float],
         closed_states = closed_states.union({(v, t)})
         if v == instance.goal:
             return reconstruct_path(instance.init, instance.goal, P, t)
-        if relaxer is not None:
+        try:
             # Bulk of the alternative strategy
-            relaxed_path = relaxer.relaxed_path_from(v)
+            relaxed_path = heuristic.relaxed_path_from(v)
             if collisions.is_collision_free(relaxed_path, instance.paths):
                 # [1:] or there is a double vertex at the middle (the first reaches v, and the second restarts from v)
                 return reconstruct_path(instance.init, v, P, t) + relaxed_path[1:]
+        # FIXME: umm, exceptions
+        except NotImplementedError:
+            pass
         if t < instance.max_length:
             for n in instance.adj[v]:
                 n, _ = n
@@ -74,7 +73,7 @@ def reach_goal(instance: Instance, h: Callable[[(int, int), (int, int)], float],
                         if (n, t + 1) not in g or g[min_state] + instance.grid.get_weight(v, n) < g[(n, t + 1)]:
                             P[(n, t + 1)] = min_state
                             g[(n, t + 1)] = g[min_state] + instance.grid.get_weight(v, n)
-                            f[(n, t + 1)] = g[(n, t + 1)] + h(n, instance.goal)
+                            f[(n, t + 1)] = g[(n, t + 1)] + heuristic.heuristic(n)
                         if (n, t + 1) not in open_states:
                             open_states = open_states.union({(n, t + 1)})
 
