@@ -17,7 +17,7 @@ def reconstruct_path(init: (int, int), goal: (int, int), P, t: int) -> generator
     return path
 
 
-def reach_goal(instance: Instance, heuristic: Heuristic, relaxer = None):
+def reach_goal(instance: Instance, heuristic: Heuristic):
     # TODO: where to put this? Should be only called without the relaxed paths collision checker
     # Safety check for starting position collisions. Should be moved elsewhere?
     if instance.init in instance.starting_positions:

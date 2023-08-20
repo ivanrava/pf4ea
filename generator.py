@@ -18,6 +18,13 @@ class Path(list):
     def __add__(self, other):
         return Path([x for x in self] + [x for x in other])
 
+    def waits(self):
+        count = 0
+        for t in range(len(self)-1):
+            if self[t] == self[t+1]:
+                count += 1
+        return count
+
 
 class Grid:
     def __init__(self, height, width, obstacle_ratio=0.1, conglomeration_ratio=0.5):
