@@ -23,6 +23,9 @@ def reach_goal(instance: Instance, heuristic: Heuristic, relaxer = None):
     if instance.init in instance.starting_positions:
         return None
 
+    # Data to be returned
+    inserted_states = 1
+    # Required structures
     closed_states = set()
     open_states = {(instance.init, 0)}
     # FIXME: better options for this data structure?
@@ -40,13 +43,13 @@ def reach_goal(instance: Instance, heuristic: Heuristic, relaxer = None):
         open_states = open_states.difference({(v, t)})
         closed_states = closed_states.union({(v, t)})
         if v == instance.goal:
-            return reconstruct_path(instance.init, instance.goal, P, t)
+            return reconstruct_path(instance.init, instance.goal, P, t), len(closed_states), inserted_states
         try:
             # Bulk of the alternative strategy
             relaxed_path = heuristic.relaxed_path_from(v)
             if collisions.is_collision_free(relaxed_path, instance.paths):
                 # [1:] or there is a double vertex at the middle (the first reaches v, and the second restarts from v)
-                return reconstruct_path(instance.init, v, P, t) + relaxed_path[1:]
+                return reconstruct_path(instance.init, v, P, t) + relaxed_path[1:], len(closed_states), inserted_states
         # FIXME: umm, exceptions
         except NotImplementedError:
             pass
@@ -76,5 +79,6 @@ def reach_goal(instance: Instance, heuristic: Heuristic, relaxer = None):
                             f[(n, t + 1)] = g[(n, t + 1)] + heuristic.heuristic(n)
                         if (n, t + 1) not in open_states:
                             open_states = open_states.union({(n, t + 1)})
+                            inserted_states += 1
 
     return None
