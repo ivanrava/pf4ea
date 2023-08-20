@@ -2,8 +2,8 @@ import numpy as np
 
 
 def extract_min(structure, function):
-    min_el = None
-    min_score = np.inf
+    min_el = next(iter(structure))
+    min_score = function(min_el)
     for el in structure:
         score = function(el)
         if score < min_score:
