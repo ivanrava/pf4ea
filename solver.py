@@ -47,7 +47,7 @@ def reach_goal(instance: Instance, heuristic: Heuristic):
         try:
             # Bulk of the alternative strategy
             relaxed_path = heuristic.relaxed_path_from(v)
-            if collisions.is_collision_free(relaxed_path, instance.paths):
+            if relaxed_path is not None and collisions.is_collision_free(relaxed_path, instance.paths):
                 # Length check
                 if t+len(relaxed_path) < instance.max_length:
                     # [1:] to avoid a double vertex in the middle (the first reaches v, and the second restarts from v)

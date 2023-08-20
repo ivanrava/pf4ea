@@ -31,4 +31,5 @@ if __name__ == '__main__':
         pathset = [path] + instance.paths
         collisions.is_pathset_collision_free(pathset)
     else:
+        instance.grid.plot(True)
         print(":( Unreachable")

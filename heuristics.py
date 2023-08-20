@@ -93,7 +93,10 @@ class DijkstraRelaxer(Heuristic):
     def relaxed_path_from(self, starting_cell):
         path = Path([starting_cell])
         while path[-1] != self.instance.goal:
-            path.append(self.pi[path[-1]])
+            try:
+                path.append(self.pi[path[-1]])
+            except KeyError:
+                return None
         return path
 
     # FIXME #1: it can be memoized
@@ -101,8 +104,11 @@ class DijkstraRelaxer(Heuristic):
         path = [v]
         cost = 0
         while path[-1] != self.instance.goal:
-            path.append(self.pi[path[-1]])
-            cost += self.d[path[-1]]
+            try:
+                path.append(self.pi[path[-1]])
+                cost += self.d[path[-1]]
+            except KeyError:
+                return np.inf
         return cost
 
     def costs(self) -> dict:
