@@ -13,8 +13,9 @@ if __name__ == '__main__':
     np.random.seed(19)
     instance = Instance(10, 8, conglomeration_ratio=0.4, obstacle_ratio=0.3, num_agents=5)
 
-    # path, _, _ = solver.reach_goal(instance, heuristics.Diagonal(instance))
-    path, _, _ = solver.reach_goal(instance, heuristics.DijkstraRelaxer(instance))
+    path, _, _ = solver.reach_goal(instance, heuristics.Diagonal(instance))
+    # path, _, _ = solver.reach_goal(instance, heuristics.DijkstraRelaxer(instance))
+    print(instance.grid.get_path_cost(path))
     if path is not None:
         print(":) REACHED!")
         instance.plot(path)

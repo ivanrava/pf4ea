@@ -105,6 +105,12 @@ class Grid:
         distance = abs(from_cell[0] - to_cell[0]) + abs(from_cell[1] - to_cell[1])
         return 1 if distance <= 1 else np.sqrt(2)
 
+    def get_path_cost(self, path: Path):
+        cost = 0
+        for t in range(len(path)-1):
+            cost += self.get_weight(path[t], path[t+1])
+        return cost
+
     def to_adj(self):
         adj = {}
         for i in range(self.grid.shape[0]):
