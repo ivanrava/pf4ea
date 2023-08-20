@@ -48,8 +48,12 @@ def reach_goal(instance: Instance, heuristic: Heuristic):
             # Bulk of the alternative strategy
             relaxed_path = heuristic.relaxed_path_from(v)
             if collisions.is_collision_free(relaxed_path, instance.paths):
-                # [1:] or there is a double vertex at the middle (the first reaches v, and the second restarts from v)
-                return reconstruct_path(instance.init, v, P, t) + relaxed_path[1:], len(closed_states), inserted_states
+                # Length check
+                if t+len(relaxed_path) < instance.max_length:
+                    # [1:] to avoid a double vertex in the middle (the first reaches v, and the second restarts from v)
+                    return reconstruct_path(instance.init, v, P, t) + relaxed_path[1:], len(closed_states), inserted_states
+                else:
+                    return None, len(closed_states), inserted_states
         # FIXME: umm, exceptions
         except NotImplementedError:
             pass
@@ -81,4 +85,4 @@ def reach_goal(instance: Instance, heuristic: Heuristic):
                             open_states = open_states.union({(n, t + 1)})
                             inserted_states += 1
 
-    return None
+    return None, len(closed_states), inserted_states

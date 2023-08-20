@@ -24,9 +24,8 @@ if __name__ == '__main__':
     end = timer()
     print(f"Instance resolution: {end-start} s")
 
-    print(len(path), instance.grid.get_path_cost(path), closed_states, inserted_states, path.waits())
-
     if path is not None:
+        print(len(path), instance.grid.get_path_cost(path), closed_states, inserted_states, path.waits())
         print(":) REACHED!")
         instance.plot(path)
         pathset = [path] + instance.paths
