@@ -12,7 +12,7 @@ if __name__ == '__main__':
     np.random.seed(19)
     instance = Instance(10, 8, conglomeration_ratio=0.4, obstacle_ratio=0.3, num_agents=5)
 
-    path = solver.reach_goal_alternative(instance)
+    path = solver.reach_goal(instance, solver.h_diagonal, relaxing.Relaxer(instance))
     if path is not None:
         print(":) REACHED!")
         instance.plot(path)

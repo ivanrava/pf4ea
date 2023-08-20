@@ -77,6 +77,7 @@ class Relaxer:
             cost += self.d[path[-1]]
         return cost
 
+
 def is_collision_free(path: Path, other_paths: [Path], debug=False):
     for t in range(max([len(p) for p in other_paths] + [len(path)])):
         for other_path in other_paths:
