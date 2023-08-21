@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -42,7 +44,7 @@ class Grid:
             rand_i, rand_j = self.get_random_empty_cell()
             self.grid[rand_i][rand_j] = 1
             obstacles -= 1
-            obstacles = self.__add_neighbor((rand_i, rand_j), obstacles, conglomeration_ratio)
+            obstacles = self.__add_neighbor_obstacle((rand_i, rand_j), obstacles, conglomeration_ratio)
 
     # FIXME: should we allow movement across "diagonal obstacles"?
     def neighbors(self, el, also_diagonals):
@@ -67,19 +69,14 @@ class Grid:
             rand_i, rand_j = np.random.randint(self.grid.shape[0]), np.random.randint(self.grid.shape[1])
         return rand_i, rand_j
 
-    # FIXME: conglomeration=1 should be 1 big block, careful to the borders
-    def __add_neighbor(self, starting_from, num_obstacle_cells, conglomeration_ratio):
-        if num_obstacle_cells == 0:
-            return 0
-        add_neighbor = get_random_boolean_weighted(conglomeration_ratio)
-        if add_neighbor:
-            neighbors = self.empty_neighbors(starting_from, also_diagonals=False)
-            if len(neighbors) == 0:
-                return num_obstacle_cells
-            random_neighbor = neighbors[np.random.choice(range(len(neighbors)))]
-            self.grid[random_neighbor] = 1
-
-            return self.__add_neighbor(random_neighbor, num_obstacle_cells - 1, conglomeration_ratio)
+    def __add_neighbor_obstacle(self, starting_from, num_obstacle_cells, conglomeration_ratio):
+        candidate_neighbors = self.empty_neighbors(starting_from, also_diagonals=False)
+        while num_obstacle_cells > 0 and get_random_boolean_weighted(conglomeration_ratio) and len(candidate_neighbors) > 0:
+            random.shuffle(candidate_neighbors)
+            selected_neighbor = candidate_neighbors.pop()
+            candidate_neighbors += self.empty_neighbors(selected_neighbor, also_diagonals=False)
+            self.grid[selected_neighbor] = 1
+            num_obstacle_cells -= 1
         else:
             return num_obstacle_cells
 
