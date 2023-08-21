@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from timeit import default_timer as timer
 
 
 def get_random_boolean_weighted(weight):
@@ -8,6 +9,7 @@ def get_random_boolean_weighted(weight):
 
 class Grid:
     def __init__(self, height, width, obstacle_ratio=0.1, conglomeration_ratio=0.5):
+        start = timer()
         # Generates an empty grid
         self.grid = np.zeros((height, width))
         self.obstacle_ratio = obstacle_ratio
@@ -25,6 +27,8 @@ class Grid:
             obstacles = self.__add_neighbor_obstacle((rand_i, rand_j), obstacles, conglomeration_ratio)
 
         self.adj = self.to_adj()
+        end = timer()
+        self.elapsed_time = end-start
 
     # FIXME: should we allow movement across "diagonal obstacles"?
     def neighbors(self, el, also_diagonals):

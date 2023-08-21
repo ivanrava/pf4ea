@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from timeit import default_timer as timer
 
 import generator.agents as agents
 from generator.grid import Grid
@@ -14,6 +15,8 @@ class Instance:
                  agent_path_length=10,
                  agent_generator: agents.AgentGenerator = agents.RandomAgentGenerator(max_length=10)):
 
+        start = timer()
+
         self.grid = Grid(width, height, conglomeration_ratio=conglomeration_ratio, obstacle_ratio=obstacle_ratio)
 
         self.init = self.grid.get_random_empty_cell()
@@ -26,6 +29,9 @@ class Instance:
 
         self.num_agents = num_agents
         self.paths, self.starting_positions = agent_generator.build_paths(num_agents, self.grid)
+
+        end = timer()
+        self.elapsed_time = end-start
 
     def plot_instant(self, t, additional_path: Path):
         self.grid.plot(show=False)

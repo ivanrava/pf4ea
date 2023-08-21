@@ -12,7 +12,6 @@ import generator.agents as agents
 if __name__ == '__main__':
     np.random.seed(4)
 
-    start = timer()
     instance = Instance(10, 8,
                         conglomeration_ratio=0.4,
                         obstacle_ratio=0.3,
@@ -23,13 +22,13 @@ if __name__ == '__main__':
     #                     obstacle_ratio=0.3,
     #                     num_agents=5,
     #                     agent_generator=agents.OptimalAgentGenerator(max_length=10))
-    end = timer()
-    print(f"Instance generation: {end-start} s")
+    print(f"Grid generation: {instance.grid.elapsed_time} s")
+    print(f"Paths generation: {instance.elapsed_time} s")
 
     import heuristics
     start = timer()
-    # path, closed_states, inserted_states = solver.solve_instance(heuristic=heuristics.Diagonal(instance.grid, instance.goal))
-    path, closed_states, inserted_states = solver.solve_instance(heuristic=heuristics.DijkstraRelaxer(instance))
+    # path, closed_states, inserted_states = solver.solve_instance(instance, heuristic=heuristics.Diagonal(instance.grid, instance.goal))
+    path, closed_states, inserted_states = solver.solve_instance(instance, heuristic=heuristics.DijkstraRelaxer(instance))
     end = timer()
     print(f"Instance resolution: {end-start} s")
 
