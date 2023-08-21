@@ -1,5 +1,3 @@
-import random
-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -55,7 +53,7 @@ class Grid:
         candidate_neighbors = self.empty_neighbors(starting_from, also_diagonals=False)
         while num_obstacle_cells > 0 and get_random_boolean_weighted(conglomeration_ratio) and len(
                 candidate_neighbors) > 0:
-            random.shuffle(candidate_neighbors)
+            np.random.shuffle(candidate_neighbors)
             selected_neighbor = candidate_neighbors.pop()
             candidate_neighbors += self.empty_neighbors(selected_neighbor, also_diagonals=False)
             self.grid[selected_neighbor] = 1
