@@ -1,13 +1,26 @@
-import utils
-
 import numpy as np
 import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
+from typing import Callable
+
+from generator.grid import Grid
+from generator.utils import Path
+
+
+def extract_min(structure: set, function: Callable[[(int, int)], float]):
+    min_el = next(iter(structure))
+    min_score = function(min_el)
+    for el in structure:
+        score = function(el)
+        if score < min_score:
+            min_score = score
+            min_el = el
+    return min_el
 
 
 class Heuristic(ABC):
-    def __init__(self, instance):
-        self.instance = instance
+    def __init__(self, raw_grid):
+        self.grid = raw_grid
 
     @abstractmethod
     def heuristic(self, vertex: (int, int)) -> float:
@@ -18,7 +31,7 @@ class Heuristic(ABC):
         pass
 
     def plot(self):
-        new_grid = np.copy(self.instance.grid.grid)
+        new_grid = np.copy(self.grid)
         for cell, cost in self.costs().items():
             new_grid[cell] = cost
         plt.pcolormesh(new_grid, edgecolors='#777', linewidth=0.5, cmap='gray')
@@ -33,22 +46,22 @@ class Heuristic(ABC):
             tick.set_verticalalignment("top")
         plt.show()
 
-    def relaxed_path_from(self, starting_cell):
+    def relaxed_path_from(self, starting_cell: (int, int)):
         raise NotImplementedError("This strategy cannot relax paths. Please choose another")
 
 
-def diagonal_heuristic(n, goal):
+def diagonal_heuristic(n: (int, int), goal: (int, int)):
     dx = abs(n[1] - goal[1])
     dy = abs(n[0] - goal[0])
     return dx + dy + (np.sqrt(2) - 2) * min(dx, dy)
 
 
 class Diagonal(Heuristic):
-    def __init__(self, instance):
-        super().__init__(instance)
+    def __init__(self, grid: Grid, goal: (int, int)):
+        super().__init__(grid)
         self.diagonals = {}
-        for vertex in instance.adj.keys():
-            self.diagonals[vertex] = diagonal_heuristic(vertex, instance.goal)
+        for vertex in self.grid.adj.keys():
+            self.diagonals[vertex] = diagonal_heuristic(vertex, goal)
 
     def heuristic(self, vertex: (int, int)):
         return self.diagonals[vertex]
@@ -59,7 +72,7 @@ class Diagonal(Heuristic):
 
 class DijkstraRelaxer(Heuristic):
     def __init__(self, instance):
-        super().__init__(instance)
+        super().__init__(instance.grid.grid)
         self.pi = {}
         self.d = {}
         self.instance = instance
@@ -77,7 +90,7 @@ class DijkstraRelaxer(Heuristic):
         S = set()
         Q = set(instance.adj.keys())
         while len(Q) > 0:
-            u = utils.extract_min(Q, lambda x: d[x] if x in d else np.inf)
+            u = extract_min(Q, lambda x: d[x] if x in d else np.inf)
             Q = Q - {u}
             S = S | {u}
             for v in instance.adj[u]:
@@ -89,8 +102,8 @@ class DijkstraRelaxer(Heuristic):
         self.d = d
 
     # FIXME #1: it can be memoized
-    def relaxed_path_from(self, starting_cell):
-        path = utils.Path([starting_cell])
+    def relaxed_path_from(self, starting_cell: (int, int)):
+        path = Path([starting_cell])
         while path[-1] != self.instance.goal:
             try:
                 path.append(self.pi[path[-1]])

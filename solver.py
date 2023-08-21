@@ -1,7 +1,8 @@
 import numpy as np
 
-import utils
-from utils import Path
+import heuristics
+from heuristics import extract_min
+from generator.utils import Path
 import collisions
 
 
@@ -15,11 +16,14 @@ def reconstruct_path(init: (int, int), goal: (int, int), P, t: int) -> Path:
     return path
 
 
-def reach_goal(grid, adj, paths, init: (int, int), goal: (int, int), max_length, starting_positions, heuristic):
+def reach_goal(grid, paths, init: (int, int), goal: (int, int), max_length, starting_positions, heuristic=None):
     # TODO: where to put this? Should be only called without the relaxed paths collision checker
     # Safety check for starting position collisions. Should be moved elsewhere?
     if init in starting_positions:
         return None
+
+    if heuristic is None:
+        heuristic = heuristics.Diagonal(grid, goal)
 
     # Data to be returned
     inserted_states = 1
@@ -35,7 +39,7 @@ def reach_goal(grid, adj, paths, init: (int, int), goal: (int, int), max_length,
 
     while len(open_states) > 0:
         # Find the state in open_states with the lowest f-score
-        min_state = utils.extract_min(open_states, lambda vertex: f[vertex] if vertex in f else np.inf)
+        min_state = extract_min(open_states, lambda vertex: f[vertex] if vertex in f else np.inf)
 
         v, t = min_state
         open_states = open_states - {(v, t)}
@@ -56,7 +60,7 @@ def reach_goal(grid, adj, paths, init: (int, int), goal: (int, int), max_length,
         except NotImplementedError:
             pass
         if t < max_length:
-            for n in adj[v]:
+            for n in grid.adj[v]:
                 n, _ = n
                 if (n, t + 1) not in closed_states:
                     traversable = True

@@ -1,11 +1,7 @@
 import random
 
-import numpy as np
 import matplotlib.pyplot as plt
-
-import agents
-from utils import Path
-import solver
+import numpy as np
 
 
 def get_random_boolean_weighted(weight):
@@ -29,6 +25,8 @@ class Grid:
             self.grid[rand_i][rand_j] = 1
             obstacles -= 1
             obstacles = self.__add_neighbor_obstacle((rand_i, rand_j), obstacles, conglomeration_ratio)
+
+        self.adj = self.to_adj()
 
     # FIXME: should we allow movement across "diagonal obstacles"?
     def neighbors(self, el, also_diagonals):
@@ -94,7 +92,7 @@ class Grid:
         distance = abs(from_cell[0] - to_cell[0]) + abs(from_cell[1] - to_cell[1])
         return 1 if distance <= 1 else np.sqrt(2)
 
-    def get_path_cost(self, path: Path):
+    def get_path_cost(self, path):
         cost = 0
         for t in range(len(path) - 1):
             cost += self.get_weight(path[t], path[t + 1])
@@ -112,61 +110,3 @@ class Grid:
                 empty_neighbors = [(n, self.get_weight((i, j), n)) for n in empty_neighbors]
                 adj[(i, j)] = empty_neighbors
         return adj
-
-    def idxes_to_idx(self, idxes):
-        i, j = idxes
-        return i * self.grid.shape[0] + j
-
-
-class Instance:
-    def __init__(self, width, height,
-                 num_agents=3,
-                 conglomeration_ratio=0.5,
-                 obstacle_ratio=0.1,
-                 max_length=20,
-                 agent_path_length=10,
-                 agent_generator: agents.AgentGenerator = agents.RandomAgentGenerator(max_length=10)):
-
-        self.grid = Grid(width, height, conglomeration_ratio=conglomeration_ratio, obstacle_ratio=obstacle_ratio)
-        self.adj = self.grid.to_adj()
-
-        self.init = self.grid.get_random_empty_cell()
-        self.goal = self.grid.get_random_empty_cell()
-
-        self.max_length = max_length
-        if max_length > self.maximum_max_length(agent_path_length):
-            print(f"Warning: max_length is too big. Setting max_length to {self.maximum_max_length(agent_path_length)}")
-            self.max_length = self.maximum_max_length(agent_path_length)
-
-        self.num_agents = num_agents
-        self.paths, self.starting_positions = agent_generator.build_paths(num_agents, instance=self)
-
-    def plot_instant(self, t, additional_path: Path):
-        self.grid.plot(show=False)
-        plt.title(f"t={t}")
-
-        for pos in self.starting_positions:
-            plt.plot(pos[1] + 0.5, pos[0] + 0.5, 'x', markersize=18)
-
-        plt.plot(self.init[1] + 0.5, self.init[0] + 0.5, 'x', markersize=18, color='#ccc')
-        plt.plot(self.goal[1] + 0.5, self.goal[0] + 0.5, '+', markersize=18, color='#ccc')
-
-        plt.gca().set_prop_cycle(None)
-        for path in self.paths:
-            plt.plot(path[t][1] + 0.5, path[t][0] + 0.5, 's', markersize=12)
-
-        plt.plot(additional_path[t][1] + 0.5, additional_path[t][0] + 0.5, '.', markersize=20, color='#aaa')
-
-        plt.show()
-
-    def plot(self, additional_path: Path):
-        for t in range(max([len(path) for path in self.paths] + [len(additional_path)])):
-            self.plot_instant(t, additional_path)
-
-    def maximum_max_length(self, agent_path_length):
-        return agent_path_length + self.grid.num_obstacle_cells
-
-    def solve(self, heuristic):
-        return solver.reach_goal(self.grid, self.adj, self.paths,
-                                 self.init, self.goal, self.max_length,
-                                 self.starting_positions, heuristic)
