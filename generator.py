@@ -143,12 +143,13 @@ class Instance:
                  avoid_backtracking=False):
         self.grid = Grid(width, height, conglomeration_ratio=conglomeration_ratio, obstacle_ratio=obstacle_ratio)
         self.adj = self.grid.to_adj()
-        self.max_length = max_length
         self.num_agents = num_agents
         self.starting_positions = []
         self.paths = []
 
-        # FIXME: add check for max_length parameter (it has an upper bound)
+        if max_length > self.maximum_max_length(agent_path_length):
+            print(f"Warning: max_length is too big. Setting max_length to {self.maximum_max_length(agent_path_length)}")
+            self.max_length = self.maximum_max_length(agent_path_length)
 
         for _ in range(num_agents):
             # Tries to build a collision-free path
@@ -201,3 +202,6 @@ class Instance:
                     next_neighbor = neighbors[idx][0]
             path.append(next_neighbor)
         return path
+
+    def maximum_max_length(self, agent_path_length):
+        return agent_path_length + self.grid.num_obstacle_cells
