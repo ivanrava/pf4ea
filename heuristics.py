@@ -88,12 +88,12 @@ class DijkstraRelaxer(Heuristic):
         d = {instance.goal: 0}
         pi = {}
         S = set()
-        Q = set(instance.adj.keys())
+        Q = set(instance.grid.adj.keys())
         while len(Q) > 0:
             u = extract_min(Q, lambda x: d[x] if x in d else np.inf)
             Q = Q - {u}
             S = S | {u}
-            for v in instance.adj[u]:
+            for v in instance.grid.adj[u]:
                 v = v[0]
                 if (d[v] if v in d else np.inf) > (d[u] if u in d else np.inf) + instance.grid.get_weight(u, v):
                     d[v] = d[u] + instance.grid.get_weight(u, v)

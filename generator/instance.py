@@ -51,3 +51,15 @@ class Instance:
 
     def maximum_max_length(self, agent_path_length):
         return agent_path_length + self.grid.num_obstacle_cells
+
+    def is_valid_start_stop(self):
+        # init collides
+        if self.init in self.starting_positions:
+            return False
+        # goal collides
+        for path in self.paths:
+            if self.goal == path[-1]:
+                return False
+
+        return True
+

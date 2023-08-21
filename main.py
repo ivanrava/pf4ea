@@ -28,7 +28,8 @@ if __name__ == '__main__':
 
     import heuristics
     start = timer()
-    path, closed_states, inserted_states = solver.reach_goal(instance.grid, instance.paths, instance.init, instance.goal, instance.max_length, instance.starting_positions, heuristic=heuristics.Diagonal(instance.grid, instance.goal))
+    # path, closed_states, inserted_states = solver.solve_instance(heuristic=heuristics.Diagonal(instance.grid, instance.goal))
+    path, closed_states, inserted_states = solver.solve_instance(heuristic=heuristics.DijkstraRelaxer(instance))
     end = timer()
     print(f"Instance resolution: {end-start} s")
 

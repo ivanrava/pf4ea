@@ -16,12 +16,16 @@ def reconstruct_path(init: (int, int), goal: (int, int), P, t: int) -> Path:
     return path
 
 
-def reach_goal(grid, paths, init: (int, int), goal: (int, int), max_length, starting_positions, heuristic=None):
+def solve_instance(instance, heuristic=None):
     # TODO: where to put this? Should be only called without the relaxed paths collision checker
     # Safety check for starting position collisions. Should be moved elsewhere?
-    if init in starting_positions:
-        return None
+    if not instance.is_valid_start_stop():
+        return None, 0, 0
 
+    return reach_goal(instance.grid, instance.paths, instance.init, instance.goal, instance.max_length, heuristic)
+
+
+def reach_goal(grid, paths, init: (int, int), goal: (int, int), max_length, heuristic=None):
     if heuristic is None:
         heuristic = heuristics.Diagonal(grid, goal)
 
