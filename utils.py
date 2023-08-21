@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def extract_min(structure, function):
+def extract_min(structure: set, function):
     min_el = next(iter(structure))
     min_score = function(min_el)
     for el in structure:

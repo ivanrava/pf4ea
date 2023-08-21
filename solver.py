@@ -40,8 +40,8 @@ def reach_goal(instance: Instance, heuristic: Heuristic):
         min_state = utils.extract_min(open_states, lambda vertex: f[vertex] if vertex in f else np.inf)
 
         v, t = min_state
-        open_states = open_states.difference({(v, t)})
-        closed_states = closed_states.union({(v, t)})
+        open_states = open_states - {(v, t)}
+        closed_states = closed_states + {(v, t)}
         if v == instance.goal:
             return reconstruct_path(instance.init, instance.goal, P, t), len(closed_states), inserted_states
         try:
@@ -82,7 +82,7 @@ def reach_goal(instance: Instance, heuristic: Heuristic):
                             g[(n, t + 1)] = g[min_state] + instance.grid.get_weight(v, n)
                             f[(n, t + 1)] = g[(n, t + 1)] + heuristic.heuristic(n)
                         if (n, t + 1) not in open_states:
-                            open_states = open_states.union({(n, t + 1)})
+                            open_states = open_states + {(n, t + 1)}
                             inserted_states += 1
 
     return None, len(closed_states), inserted_states
