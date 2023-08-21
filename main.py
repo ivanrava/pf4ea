@@ -1,26 +1,37 @@
-import collisions
-import heuristics
-import solver
-from generator import Instance
 import numpy as np
 from timeit import default_timer as timer
 from pprint import pprint
 
+import collisions
+import heuristics
+import agents
+from generator import Instance
+
 # FIXME: what to do here?
-# Seed 2,11,16,18,24,31,37,42,47,48,51,67,71,73,74,80,87,90,91,92: grey stops and another overlaps it.
+# Seed 2,11,16,18,24,31,37,42,47,48,51,67,71,73,74,80,87,90,91,92 (4): grey stops and another overlaps it.
 # Seed 29,30: grey stop and purple stop collide.
 # Seed 48: start and goal are the same (allowed, not allowed?)
 if __name__ == '__main__':
-    np.random.seed(19)
+    np.random.seed(4)
 
     start = timer()
-    instance = Instance(10, 8, conglomeration_ratio=0.4, obstacle_ratio=0.3, num_agents=5)
+
+    # instance = Instance(10, 8,
+    #                     conglomeration_ratio=0.4,
+    #                     obstacle_ratio=0.3,
+    #                     num_agents=5,
+    #                     agent_generator=agents.RandomAgentGenerator(max_length=10, avoid_backtracking=False))
+    instance = Instance(10, 8,
+                        conglomeration_ratio=0.4,
+                        obstacle_ratio=0.3,
+                        num_agents=5,
+                        agent_generator=agents.OptimalAgentGenerator(max_length=10))
     end = timer()
     print(f"Instance generation: {end-start} s")
 
     start = timer()
-    # path, closed_states, inserted_states = solver.reach_goal(instance, heuristics.Diagonal(instance))
-    path, closed_states, inserted_states = solver.reach_goal(instance, heuristics.DijkstraRelaxer(instance))
+    path, closed_states, inserted_states = instance.solve(heuristics.Diagonal(instance))
+    # path, closed_states, inserted_states = instance.solve(heuristics.DijkstraRelaxer(instance))
     end = timer()
     print(f"Instance resolution: {end-start} s")
 

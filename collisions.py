@@ -1,5 +1,6 @@
-from generator import Path
 import numpy as np
+
+from utils import Path
 
 
 def is_collision_free(path: Path, other_paths: [Path], debug=False):

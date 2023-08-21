@@ -3,29 +3,13 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 
-import collisions
+import agents
+from utils import Path
+import solver
 
 
 def get_random_boolean_weighted(weight):
     return (np.random.random_sample(1) < weight)[0]
-
-
-class Path(list):
-    def __getitem__(self, t):
-        try:
-            return super().__getitem__(t)
-        except IndexError:
-            return super().__getitem__(-1)
-
-    def __add__(self, other):
-        return Path([x for x in self] + [x for x in other])
-
-    def waits(self):
-        count = 0
-        for t in range(len(self)-1):
-            if self[t] == self[t+1]:
-                count += 1
-        return count
 
 
 class Grid:
@@ -71,7 +55,8 @@ class Grid:
 
     def __add_neighbor_obstacle(self, starting_from, num_obstacle_cells, conglomeration_ratio):
         candidate_neighbors = self.empty_neighbors(starting_from, also_diagonals=False)
-        while num_obstacle_cells > 0 and get_random_boolean_weighted(conglomeration_ratio) and len(candidate_neighbors) > 0:
+        while num_obstacle_cells > 0 and get_random_boolean_weighted(conglomeration_ratio) and len(
+                candidate_neighbors) > 0:
             random.shuffle(candidate_neighbors)
             selected_neighbor = candidate_neighbors.pop()
             candidate_neighbors += self.empty_neighbors(selected_neighbor, also_diagonals=False)
@@ -111,8 +96,8 @@ class Grid:
 
     def get_path_cost(self, path: Path):
         cost = 0
-        for t in range(len(path)-1):
-            cost += self.get_weight(path[t], path[t+1])
+        for t in range(len(path) - 1):
+            cost += self.get_weight(path[t], path[t + 1])
         return cost
 
     def to_adj(self):
@@ -140,27 +125,21 @@ class Instance:
                  obstacle_ratio=0.1,
                  max_length=20,
                  agent_path_length=10,
-                 avoid_backtracking=False):
+                 agent_generator: agents.AgentGenerator = agents.RandomAgentGenerator(max_length=10)):
+
         self.grid = Grid(width, height, conglomeration_ratio=conglomeration_ratio, obstacle_ratio=obstacle_ratio)
         self.adj = self.grid.to_adj()
-        self.num_agents = num_agents
-        self.starting_positions = []
-        self.paths = []
 
+        self.init = self.grid.get_random_empty_cell()
+        self.goal = self.grid.get_random_empty_cell()
+
+        self.max_length = max_length
         if max_length > self.maximum_max_length(agent_path_length):
             print(f"Warning: max_length is too big. Setting max_length to {self.maximum_max_length(agent_path_length)}")
             self.max_length = self.maximum_max_length(agent_path_length)
 
-        for _ in range(num_agents):
-            # Tries to build a collision-free path
-            new_path = self.build_path_from(self.grid.get_random_empty_cell(), max_length=agent_path_length, avoid_backtracking=avoid_backtracking)
-            while not collisions.is_collision_free(new_path, self.paths):
-                new_path = self.build_path_from(self.grid.get_random_empty_cell(), max_length=agent_path_length, avoid_backtracking=avoid_backtracking)
-            # Appends the path
-            self.starting_positions.append(new_path[0])
-            self.paths.append(new_path)
-        self.init = self.grid.get_random_empty_cell()
-        self.goal = self.grid.get_random_empty_cell()
+        self.num_agents = num_agents
+        self.paths, self.starting_positions = agent_generator.build_paths(num_agents, instance=self)
 
     def plot_instant(self, t, additional_path: Path):
         self.grid.plot(show=False)
@@ -184,24 +163,10 @@ class Instance:
         for t in range(max([len(path) for path in self.paths] + [len(additional_path)])):
             self.plot_instant(t, additional_path)
 
-    def build_path_from(self, starting_position, max_length: int, avoid_backtracking: bool = False) -> Path:
-        path = Path([starting_position])
-        while len(path) < max_length:
-            neighbors = self.adj[path[-1]][:]
-            if len(neighbors) == 0:
-                break
-            idx = np.random.choice(range(len(neighbors)))
-            next_neighbor = neighbors[idx][0]
-            # Optional: forbids agent from walking again down the same cells
-            if avoid_backtracking:
-                while next_neighbor in path:
-                    neighbors.pop(idx)
-                    if len(neighbors) == 0:
-                        return path
-                    idx = np.random.choice(range(len(neighbors)))
-                    next_neighbor = neighbors[idx][0]
-            path.append(next_neighbor)
-        return path
-
     def maximum_max_length(self, agent_path_length):
         return agent_path_length + self.grid.num_obstacle_cells
+
+    def solve(self, heuristic):
+        return solver.reach_goal(self.grid, self.adj, self.paths,
+                                 self.init, self.goal, self.max_length,
+                                 self.starting_positions, heuristic)

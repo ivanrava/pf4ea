@@ -1,12 +1,12 @@
 import utils
-from generator import Instance, Path
+
 import numpy as np
 import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
 
 
 class Heuristic(ABC):
-    def __init__(self, instance: Instance):
+    def __init__(self, instance):
         self.instance = instance
 
     @abstractmethod
@@ -44,7 +44,7 @@ def diagonal_heuristic(n, goal):
 
 
 class Diagonal(Heuristic):
-    def __init__(self, instance: Instance):
+    def __init__(self, instance):
         super().__init__(instance)
         self.diagonals = {}
         for vertex in instance.adj.keys():
@@ -58,14 +58,14 @@ class Diagonal(Heuristic):
 
 
 class DijkstraRelaxer(Heuristic):
-    def __init__(self, instance: Instance):
+    def __init__(self, instance):
         super().__init__(instance)
         self.pi = {}
         self.d = {}
         self.instance = instance
         self.__relax_dijkstra(instance)
 
-    def __relax_dijkstra(self, instance: Instance):
+    def __relax_dijkstra(self, instance):
         """
         Dijkstra algorithm
         :param instance: problem instance
@@ -90,7 +90,7 @@ class DijkstraRelaxer(Heuristic):
 
     # FIXME #1: it can be memoized
     def relaxed_path_from(self, starting_cell):
-        path = Path([starting_cell])
+        path = utils.Path([starting_cell])
         while path[-1] != self.instance.goal:
             try:
                 path.append(self.pi[path[-1]])

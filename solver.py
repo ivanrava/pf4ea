@@ -1,14 +1,12 @@
-import collisions
-import generator
-import utils
-from generator import Instance
 import numpy as np
 
-from heuristics import Heuristic
+import utils
+from utils import Path
+import collisions
 
 
-def reconstruct_path(init: (int, int), goal: (int, int), P, t: int) -> generator.Path:
-    path = generator.Path([goal])
+def reconstruct_path(init: (int, int), goal: (int, int), P, t: int) -> Path:
+    path = Path([goal])
     while path[-1] != init or t != 0:
         previous = P[(path[-1], t)]
         path.append(previous[0])
@@ -17,23 +15,23 @@ def reconstruct_path(init: (int, int), goal: (int, int), P, t: int) -> generator
     return path
 
 
-def reach_goal(instance: Instance, heuristic: Heuristic):
+def reach_goal(grid, adj, paths, init: (int, int), goal: (int, int), max_length, starting_positions, heuristic):
     # TODO: where to put this? Should be only called without the relaxed paths collision checker
     # Safety check for starting position collisions. Should be moved elsewhere?
-    if instance.init in instance.starting_positions:
+    if init in starting_positions:
         return None
 
     # Data to be returned
     inserted_states = 1
     # Required structures
     closed_states = set()
-    open_states = {(instance.init, 0)}
+    open_states = {(init, 0)}
     # FIXME: better options for this data structure?
-    g = {(instance.init, 0): 0}
+    g = {(init, 0): 0}
     # TODO: P is equal to OPEN U CLOSED (p. 55). Maybe we can "delete" it?
     P = {}
 
-    f = {(instance.init, 0): heuristic.heuristic(instance.init)}
+    f = {(init, 0): heuristic.heuristic(init)}
 
     while len(open_states) > 0:
         # Find the state in open_states with the lowest f-score
@@ -42,28 +40,28 @@ def reach_goal(instance: Instance, heuristic: Heuristic):
         v, t = min_state
         open_states = open_states - {(v, t)}
         closed_states = closed_states | {(v, t)}
-        if v == instance.goal:
-            return reconstruct_path(instance.init, instance.goal, P, t), len(closed_states), inserted_states
+        if v == goal:
+            return reconstruct_path(init, goal, P, t), len(closed_states), inserted_states
         try:
             # Bulk of the alternative strategy
             relaxed_path = heuristic.relaxed_path_from(v)
-            if relaxed_path is not None and collisions.is_collision_free(relaxed_path, instance.paths):
+            if relaxed_path is not None and collisions.is_collision_free(relaxed_path, paths):
                 # Length check
-                if t+len(relaxed_path) < instance.max_length:
+                if t+len(relaxed_path) < max_length:
                     # [1:] to avoid a double vertex in the middle (the first reaches v, and the second restarts from v)
-                    return reconstruct_path(instance.init, v, P, t) + relaxed_path[1:], len(closed_states), inserted_states
+                    return reconstruct_path(init, v, P, t) + relaxed_path[1:], len(closed_states), inserted_states
                 else:
                     return None, len(closed_states), inserted_states
         # FIXME: umm, exceptions
         except NotImplementedError:
             pass
-        if t < instance.max_length:
-            for n in instance.adj[v]:
+        if t < max_length:
+            for n in adj[v]:
                 n, _ = n
                 if (n, t + 1) not in closed_states:
                     traversable = True
                     # Check collisions with other agents
-                    for path in instance.paths:
+                    for path in paths:
                         # 1. An agent is going to the same cell (n) on next tick (t+1)
                         # 2. An agent is going to my cell (v) on next tick (t+1), and previously was on my next cell (n)
                         if path[t + 1] == n or (path[t + 1] == v and path[t] == n):
@@ -77,9 +75,9 @@ def reach_goal(instance: Instance, heuristic: Heuristic):
                             if delta3 == delta4 == (1, 1) and delta1 == delta2 and delta1 in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                                 traversable = False
                     if traversable:
-                        if (n, t + 1) not in g or g[min_state] + instance.grid.get_weight(v, n) < g[(n, t + 1)]:
+                        if (n, t + 1) not in g or g[min_state] + grid.get_weight(v, n) < g[(n, t + 1)]:
                             P[(n, t + 1)] = min_state
-                            g[(n, t + 1)] = g[min_state] + instance.grid.get_weight(v, n)
+                            g[(n, t + 1)] = g[min_state] + grid.get_weight(v, n)
                             f[(n, t + 1)] = g[(n, t + 1)] + heuristic.heuristic(n)
                         if (n, t + 1) not in open_states:
                             open_states = open_states | {(n, t + 1)}
