@@ -3,12 +3,12 @@
 seed=42
 count=0
 echo 'id;width;height;num_agents;obstacle_ratio;conglomeration_ratio;agent_path_length;max_length;agent_generator;h;seed;status;solution_length;solution_cost;closed_states;inserted_states;waits;grid_gen_time;agents_gen_time;resolution_time;process_time;memory'
-for width in {12..100..8}
+for width in {10..100..10}
 do
-	for height in {12..100..8}
+	for height in {10..100..10}
 	do
 		size=$((width*height))
-		for num_agents in 0 1 2 4
+		for num_agents in 0 1 2 3
 		do
 			for obstacle_ratio in 0 0.25 0.5 0.75 0.9
 			do
@@ -16,11 +16,11 @@ do
 				free_cells=$((size-obstacles))
 				for conglomeration_ratio in 0 0.25 0.5 0.75 1
 				do
-					for agent_path_length in 5 25 50 100 500 1000 5000
+					for agent_path_length in 10 25 50 100 500 1000
 					do
 						if (( $agent_path_length < $free_cells ))
 						then
-							for max_length in 5 10 50 100 500 1000 5000
+							for max_length in 10 25 50 100 500 1000
 							do
 								if (( $max_length < $free_cells ))
 								then
