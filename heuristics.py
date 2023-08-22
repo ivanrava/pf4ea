@@ -7,6 +7,9 @@ from generator.grid import Grid
 from generator.utils import Path
 
 
+# TODO: add more heuristics
+
+
 def extract_min(structure: set, function: Callable[[(int, int)], float]):
     min_el = next(iter(structure))
     min_score = function(min_el)

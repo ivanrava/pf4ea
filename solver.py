@@ -66,6 +66,7 @@ def reach_goal(grid, paths, init: (int, int), goal: (int, int), max_length, heur
         if t < max_length:
             for n in grid.adj[v]:
                 n, _ = n
+                # FIXME: heuristic consistent... Is the following if required?
                 if (n, t + 1) not in closed_states:
                     traversable = True
                     # Check collisions with other agents
