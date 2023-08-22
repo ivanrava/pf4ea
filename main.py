@@ -61,7 +61,8 @@ if __name__ == '__main__':
                 instance_resolution = end-start
 
                 print('success' if path is not None else 'failure',
-                      len(path) if path is not None else 0,
+                      # We skip the initial node
+                      len(path)-1 if path is not None else 0,
                       np.round(instance.grid.get_path_cost(path) if path is not None else 0, decimals=4),
                       closed_states, inserted_states, path.waits() if path is not None else 0,
                       np.round(instance.grid.elapsed_time, decimals=4),
