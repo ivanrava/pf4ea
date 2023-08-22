@@ -6,6 +6,7 @@ import solver
 from generator import Instance
 import generator.agents as agents
 import heuristics
+import timeout
 
 # FIXME: should we do a final check after resolution?
 # Seed 2,11,16,18,24,31,37,42,47,48,51,67,71,73,74,80,87,90,91,92 (4): grey stops and another overlaps it.
@@ -44,27 +45,32 @@ if __name__ == '__main__':
 
         agent_generator_obj = get_agent_generator(agent_generator, agent_path_length)
 
-        instance = Instance(width, height,
-                            num_agents=num_agents,
-                            obstacle_ratio=obstacle_ratio,
-                            conglomeration_ratio=conglomeration_ratio,
-                            max_length=max_length,
-                            agent_generator=agent_generator_obj
-                            )
-        heuristic_obj = get_heuristic(h, instance)
-        start = timer()
-        path, closed_states, inserted_states = solver.solve_instance(instance, heuristic=heuristic_obj)
-        end = timer()
-        instance_resolution = end-start
+        try:
+            with timeout.time_limit(1):
+                instance = Instance(width, height,
+                                    num_agents=num_agents,
+                                    obstacle_ratio=obstacle_ratio,
+                                    conglomeration_ratio=conglomeration_ratio,
+                                    max_length=max_length,
+                                    agent_generator=agent_generator_obj
+                                    )
+                heuristic_obj = get_heuristic(h, instance)
+                start = timer()
+                path, closed_states, inserted_states = solver.solve_instance(instance, heuristic=heuristic_obj)
+                end = timer()
+                instance_resolution = end-start
 
-        print(width, height, num_agents,
-              obstacle_ratio, conglomeration_ratio,
-              agent_path_length, max_length, agent_generator, h,
-              'success' if path is not None else 'failure',
-              len(path) if path is not None else 0, instance.grid.get_path_cost(path) if path is not None else 0,
-              closed_states, inserted_states, path.waits() if path is not None else 0,
-              instance.grid.elapsed_time, instance.elapsed_time, instance_resolution,
-              sep=';')
+                print('success' if path is not None else 'failure',
+                      len(path) if path is not None else 0, instance.grid.get_path_cost(path) if path is not None else 0,
+                      closed_states, inserted_states, path.waits() if path is not None else 0,
+                      instance.grid.elapsed_time, instance.elapsed_time, instance_resolution,
+                      sep=';', end='')
+        except timeout.TimeoutException:
+            print('timeout',
+                  0, 0,
+                  0, 0, 0,
+                  0, 0, 0,
+                  sep=';', end='')
     else:
         np.random.seed(4)
 

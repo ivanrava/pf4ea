@@ -23,7 +23,6 @@ class Instance:
 
         self.max_length = max_length
         if max_length > self.maximum_max_length(agent_generator.max_length):
-            print(f"Warning: max_length is too big. Setting max_length to {self.maximum_max_length(agent_generator.max_length)}")
             self.max_length = self.maximum_max_length(agent_generator.max_length)
 
         self.num_agents = num_agents
