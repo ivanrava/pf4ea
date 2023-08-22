@@ -61,16 +61,21 @@ if __name__ == '__main__':
                 instance_resolution = end-start
 
                 print('success' if path is not None else 'failure',
-                      len(path) if path is not None else 0, instance.grid.get_path_cost(path) if path is not None else 0,
+                      len(path) if path is not None else 0,
+                      np.round(instance.grid.get_path_cost(path) if path is not None else 0, decimals=4),
                       closed_states, inserted_states, path.waits() if path is not None else 0,
-                      instance.grid.elapsed_time, instance.elapsed_time, instance_resolution,
+                      np.round(instance.grid.elapsed_time, decimals=4),
+                      np.round(instance.elapsed_time, decimals=4),
+                      np.round(instance_resolution, decimals=4),
                       sep=';', end='')
+                sys.exit(0 if path is not None else 1)
         except timeout.TimeoutException:
             print('timeout',
                   0, 0,
                   0, 0, 0,
                   0, 0, 0,
                   sep=';', end='')
+            sys.exit(2)
     else:
         np.random.seed(4)
 
