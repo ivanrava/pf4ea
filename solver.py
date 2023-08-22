@@ -55,7 +55,7 @@ def reach_goal(grid, paths, init: (int, int), goal: (int, int), max_length, heur
             relaxed_path = heuristic.relaxed_path_from(v)
             if relaxed_path is not None and collisions.is_collision_free(relaxed_path, paths):
                 # Length check
-                if t+len(relaxed_path) < max_length:
+                if t+len(relaxed_path) <= max_length:
                     # [1:] to avoid a double vertex in the middle (the first reaches v, and the second restarts from v)
                     return reconstruct_path(init, v, P, t) + relaxed_path[1:], len(closed_states), inserted_states
                 else:
