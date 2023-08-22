@@ -72,7 +72,6 @@ class OptimalAgentGenerator(AgentGenerator):
             self.get_new_random_start(grid),
             self.get_new_random_start(grid),
             max_length=self.max_length,
-            starting_positions=self.starting_positions,
         )
         return path
 

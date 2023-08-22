@@ -12,7 +12,6 @@ class Instance:
                  conglomeration_ratio=0.5,
                  obstacle_ratio=0.1,
                  max_length=20,
-                 agent_path_length=10,
                  agent_generator: agents.AgentGenerator = agents.RandomAgentGenerator(max_length=10)):
 
         start = timer()
@@ -23,9 +22,9 @@ class Instance:
         self.goal = self.grid.get_random_empty_cell()
 
         self.max_length = max_length
-        if max_length > self.maximum_max_length(agent_path_length):
-            print(f"Warning: max_length is too big. Setting max_length to {self.maximum_max_length(agent_path_length)}")
-            self.max_length = self.maximum_max_length(agent_path_length)
+        if max_length > self.maximum_max_length(agent_generator.max_length):
+            print(f"Warning: max_length is too big. Setting max_length to {self.maximum_max_length(agent_generator.max_length)}")
+            self.max_length = self.maximum_max_length(agent_generator.max_length)
 
         self.num_agents = num_agents
         self.paths, self.starting_positions = agent_generator.build_paths(num_agents, self.grid)
