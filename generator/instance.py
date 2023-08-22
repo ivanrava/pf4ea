@@ -54,7 +54,7 @@ class Instance:
             self.plot_instant(t, additional_path)
 
     def maximum_max_length(self, agent_path_length):
-        return agent_path_length + self.grid.num_obstacle_cells
+        return agent_path_length + (self.grid.grid.size - self.grid.num_obstacle_cells)
 
     def is_valid_start_stop(self):
         # init collides
