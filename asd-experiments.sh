@@ -2,6 +2,7 @@
 
 seed=42
 count=0
+echo 'id;width;height;num_agents;obstacle_ratio;conglomeration_ratio;agent_path_length;max_length;agent_generator;h;seed;status;solution_length;solution_cost;closed_states;inserted_states;waits;grid_gen_time;agents_gen_time;resolution_time;process_time;memory'
 for width in {48..100..16}
 do
 	for height in {48..100..16}
