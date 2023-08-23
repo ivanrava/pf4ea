@@ -17,7 +17,6 @@ def reconstruct_path(init: (int, int), goal: (int, int), P, t: int) -> Path:
 
 
 def solve_instance(instance, heuristic=None):
-    # TODO: where to put this? Should be only called without the relaxed paths collision checker
     # Safety check for starting position collisions. Should be moved elsewhere?
     if not instance.is_valid_start_stop():
         return None, 0, 0
@@ -34,9 +33,7 @@ def reach_goal(grid, paths, init: (int, int), goal: (int, int), max_length, heur
     # Required structures
     closed_states = set()
     open_states = {(init, 0)}
-    # FIXME: better options for this data structure?
     g = {(init, 0): 0}
-    # TODO: P is equal to OPEN U CLOSED (p. 55). Maybe we can "delete" it?
     P = {}
 
     f = {(init, 0): heuristic.heuristic(init)}
@@ -60,13 +57,11 @@ def reach_goal(grid, paths, init: (int, int), goal: (int, int), max_length, heur
                     return reconstruct_path(init, v, P, t) + relaxed_path[1:], len(closed_states), inserted_states
                 else:
                     return None, len(closed_states), inserted_states
-        # FIXME: umm, exceptions
         except NotImplementedError:
             pass
         if t < max_length:
             for n in grid.adj[v]:
                 n, _ = n
-                # FIXME: heuristic consistent... Is the following if required?
                 if (n, t + 1) not in closed_states:
                     traversable = True
                     # Check collisions with other agents

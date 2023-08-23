@@ -7,9 +7,6 @@ from generator.grid import Grid
 from generator.utils import Path
 
 
-# TODO: add more heuristics
-
-
 def extract_min(structure: set, function: Callable[[(int, int)], float]):
     min_el = next(iter(structure))
     min_score = function(min_el)
@@ -104,7 +101,6 @@ class DijkstraRelaxer(Heuristic):
         self.pi = pi
         self.d = d
 
-    # FIXME #1: it can be memoized
     def relaxed_path_from(self, starting_cell: (int, int)):
         path = Path([starting_cell])
         while path[-1] != self.instance.goal:
@@ -114,7 +110,6 @@ class DijkstraRelaxer(Heuristic):
                 return None
         return path
 
-    # FIXME #1: it can be memoized
     def heuristic(self, v: (int, int)):
         path = [v]
         cost = 0

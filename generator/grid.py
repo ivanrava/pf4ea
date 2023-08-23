@@ -30,7 +30,6 @@ class Grid:
         end = timer()
         self.elapsed_time = end-start
 
-    # FIXME: should we allow movement across "diagonal obstacles"?
     def neighbors(self, el, also_diagonals):
         (i, j) = el
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]

@@ -8,10 +8,6 @@ import generator.agents as agents
 import heuristics
 import timeout
 
-# FIXME: should we do a final check after resolution?
-# Seed 2,11,16,18,24,31,37,42,47,48,51,67,71,73,74,80,87,90,91,92 (4): grey stops and another overlaps it.
-# FIXME: should we allow the possibility of start = end
-# Seed 48: start and goal are the same (allowed, not allowed?)
 if __name__ == '__main__':
     def get_agent_generator(name: str, path_length: int):
         agent_generators = {
@@ -46,7 +42,7 @@ if __name__ == '__main__':
         agent_generator_obj = get_agent_generator(agent_generator, agent_path_length)
 
         try:
-            with timeout.time_limit(1):
+            with timeout.time_limit(5):
                 instance = Instance(width, height,
                                     num_agents=num_agents,
                                     obstacle_ratio=obstacle_ratio,
@@ -78,13 +74,14 @@ if __name__ == '__main__':
                   sep=';', end='')
             sys.exit(2)
     else:
-        np.random.seed(4)
+        np.random.seed(42)
 
-        instance = Instance(10, 8,
-                            conglomeration_ratio=0.4,
-                            obstacle_ratio=0.3,
-                            num_agents=5,
-                            agent_generator=agents.RandomAgentGenerator(max_length=10, avoid_backtracking=False))
+        instance = Instance(12, 12,
+                            conglomeration_ratio=0,
+                            obstacle_ratio=0.25,
+                            num_agents=0,
+                            max_length=10,
+                            agent_generator=agents.RandomAgentGenerator(max_length=5, avoid_backtracking=False))
         # instance = Instance(10, 8,
         #                     conglomeration_ratio=0.4,
         #                     obstacle_ratio=0.3,
