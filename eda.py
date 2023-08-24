@@ -25,7 +25,28 @@ if __name__ == '__main__':
     df['size'] = df['width'] * df['height']
     df['obstacles'] = (df['size'] * df['obstacle_ratio']).astype('int')
     df['free_cells'] = df['size'] - df['obstacles']
+
+
+    def condition_func(row):
+        if row['width'] >= row['height']:
+            return np.round(row['height']/row['width'],decimals=2)
+        else:
+            return np.round(row['width']/row['height'],decimals=2)
+
+
+    df['aspect_ratio'] = df.apply(condition_func, axis=1)
+
     print(df)
+
+
+
+
+    print(df)
+
+
+
+
+
 
     with pd.option_context('display.max_columns', 40):
         print(df.describe(include='all'))
@@ -37,6 +58,7 @@ if __name__ == '__main__':
     sns.lineplot(data=df_memory_groups)
     plt.title('size - memory line ')
     plt.show()
+
 
 
     plt.figure(figsize=(16,8))
@@ -147,4 +169,48 @@ if __name__ == '__main__':
     plt.show()
 
 
+#open closed states
+    sns.lineplot(data=df_diagonal.groupby('size').agg(InsertedStates=('inserted_states','mean')),  palette=['red'])
+    sns.lineplot(data=df_dijkstra.groupby('size').agg(ClosedStates=('closed_states', 'mean')), palette=['blue'])
+    plt.yscale('log')
+    plt.title('size - states inserted/closed')
+    plt.show()
 
+#aspect ratio plot
+
+    df_without_timeout = df.loc[df['status'] != 'timeout']
+    process_time_aspect_ratio_groups = df_without_timeout.groupby('aspect_ratio')['status'].value_counts()
+    df_process_time_aspect_ratio_groups = process_time_aspect_ratio_groups.unstack(fill_value=0)
+    success = df_process_time_aspect_ratio_groups['success']/(
+            df_process_time_aspect_ratio_groups['success']+df_process_time_aspect_ratio_groups['failure'])
+    failure = df_process_time_aspect_ratio_groups['failure'] / (
+                df_process_time_aspect_ratio_groups['success'] + df_process_time_aspect_ratio_groups['failure'])
+    df_process_time_aspect_ratio_groups['success'] = success
+    df_process_time_aspect_ratio_groups['failure'] = failure
+
+    df_process_time_aspect_ratio_groups.plot(kind='bar')
+    plt.xlabel('aspect_ratio')
+    plt.ylabel('tot')
+    plt.title('Conteggio occorrenze status per aspect ratio')
+    plt.legend(title='Status')
+    plt.show()
+
+#plot line
+    sns.lineplot(data=df.groupby('aspect_ratio').agg(InsertedStates=('inserted_states','mean')),  palette=['red'])
+    sns.lineplot(data=df.groupby('aspect_ratio').agg(ClosedStates=('closed_states', 'mean')), palette=['blue'])
+    plt.title('aspect ratio - states inserted/closed')
+    plt.show()
+
+#dijkstra diagonale states
+    sns.lineplot(data=df_diagonal.groupby('size').agg(InsertedStatesDiagonal=('inserted_states', 'mean')), palette=['red'])
+    sns.lineplot(data=df_diagonal.groupby('size').agg(ClosedStatesDiagonal=('closed_states', 'mean')), palette=['blue'])
+    sns.lineplot(data=df_dijkstra.groupby('size').agg(InsertedStatesDijkstra=('inserted_states', 'mean')), palette=['green'])
+    sns.lineplot(data=df_dijkstra.groupby('size').agg(ClosedStatesDijkstra=('closed_states', 'mean')), palette=['black'])
+    plt.yscale('log')
+    plt.title('size - states inserted/closed Dijkstra Diagonal')
+    plt.show()
+
+#mosse wait
+    sns.lineplot(data=df.groupby('size').agg(Waits=('waits', 'mean')))
+    plt.title('size - waits')
+    plt.show()
