@@ -117,6 +117,8 @@ if __name__ == '__main__':
                  errorbar=None, markers=True, dashes=False, markersize=8)
     plt.legend(labels=['Pseudo-random', 'Through ReachGoal'])
     plt.title('Agent generators time comparison')
+    plt.xlabel('Size')
+    plt.ylabel('Agents generation time')
     plt.show()
 
     # num agents - time
@@ -162,20 +164,21 @@ if __name__ == '__main__':
     a.invert_yaxis()
 
     # Add title
-    plt.xlabel('conglomeration_ratio')
-    plt.ylabel('obstacle_ratio')
-    plt.title("Heatmap memory occupation - obstacle")
+    plt.title("Memory occupation heatmap")
+    plt.xlabel('Conglomeration ratio')
+    plt.ylabel('Obstacle ratio')
     plt.show()
 
     # open closed states
     sns.lineplot(data=df_diagonal.groupby('size').agg(InsertedStates=('inserted_states', 'mean')), palette=['red'])
     sns.lineplot(data=df_dijkstra.groupby('size').agg(ClosedStates=('closed_states', 'mean')), palette=['blue'])
     plt.yscale('log')
-    plt.title('size - states inserted/closed')
+    plt.title('States inserted & closed by ReachGoal')
+    plt.xlabel('Size')
+    plt.ylabel('# of states')
     plt.show()
 
     # aspect ratio plot
-
     df_without_timeout = df.loc[df['status'] != 'timeout']
     process_time_aspect_ratio_groups = df_without_timeout.groupby('aspect_ratio')['status'].value_counts()
     df_process_time_aspect_ratio_groups = process_time_aspect_ratio_groups.unstack(fill_value=0)
@@ -213,5 +216,6 @@ if __name__ == '__main__':
 
     # mosse wait
     sns.lineplot(data=df.groupby('size').agg(Waits=('waits', 'mean')))
-    plt.title('size - waits')
+    plt.title('# of wait moves')
+    plt.xlabel('Size')
     plt.show()
