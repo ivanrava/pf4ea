@@ -33,6 +33,7 @@ if __name__ == '__main__':
                            MemoryMax=('memory', 'max'))
 
     sns.lineplot(data=df_memory_groups)
+    plt.show()
     sns.violinplot(x='size', y='memory', data=df)
     plt.show()
 
@@ -66,3 +67,14 @@ if __name__ == '__main__':
     plt.title('Conteggio occorrenze status per obstacle ratio')
     plt.legend(title='Status')
     plt.show()
+
+    print(df.info)
+
+#histogram grid gen time by size
+    df_grid_gen_time_group = df.groupby('size').agg(GridGenTimeMean=('grid_gen_time','mean'))
+    print(df_grid_gen_time_group)
+    sns.lineplot(data=df_grid_gen_time_group, x='size', y='GridGenTimeMean')
+    plt.show()
+
+
+
