@@ -35,8 +35,13 @@ if __name__ == '__main__':
                            MemoryMax=('memory', 'max'))
 
     sns.lineplot(data=df_memory_groups)
+    plt.title('size - memory line ')
     plt.show()
-    sns.violinplot(x='size', y='memory', data=df)
+
+
+    plt.figure(figsize=(16,8))
+    sns.violinplot(x='size', y='memory', data=df, linewidth=0)
+    plt.title('size - memory violin ')
     plt.show()
 
 
