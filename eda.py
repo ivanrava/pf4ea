@@ -98,7 +98,7 @@ if __name__ == '__main__':
     plt.show()
 
     # histogram grid gen time by size
-    df_grid_gen_time_group = df.groupby('size').agg(GridGenTimeMean=('grid_gen_time', 'mean'),
+    df_grid_gen_time_group = df_no_timeout.groupby('size').agg(GridGenTimeMean=('grid_gen_time', 'mean'),
                                                     AgentsGenTimeMean=('agents_gen_time', 'mean'),
                                                     ResolutionTimeMean=('resolution_time', 'mean'))
     sns.lineplot(data=df_grid_gen_time_group, errorbar=None, markers=True, dashes=False, markersize=6)
@@ -249,7 +249,7 @@ if __name__ == '__main__':
     sns.set()
     a = sns.heatmap(grid, xticklabels=list(range(10, 101, 10)),
                     yticklabels=list(range(10, 101, 10)),
-                    fmt=".1f", cmap=sns.cm.rocket_r)
+                    fmt=".1f", cmap=sns.cm._crest_lut)
     a.invert_yaxis()
     plt.title("Process time heatmap")
     plt.xlabel('Width')
