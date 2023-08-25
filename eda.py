@@ -219,3 +219,39 @@ if __name__ == '__main__':
     plt.title('# of wait moves')
     plt.xlabel('Size')
     plt.show()
+
+    # heatmap width-height
+    grid = np.zeros((10, 10))
+    for i, h in enumerate(range(10, 101, 10)):
+        for j, w in enumerate(range(10, 101, 10)):
+            dfoc = df.loc[df['width'] == w].loc[df['height'] == h]
+            grid[i, j] = np.mean(dfoc['memory'])
+
+    # Create a heatmap
+    sns.set()
+    a = sns.heatmap(grid, xticklabels=list(range(10, 101, 10)),
+                    yticklabels=list(range(10, 101, 10)),
+                    fmt=".1f", cmap=sns.cm.rocket_r)
+    a.invert_yaxis()
+    plt.title("Memory occupation heatmap")
+    plt.xlabel('Width')
+    plt.ylabel('Height')
+    plt.show()
+
+    # heatmap width-height
+    grid = np.zeros((10, 10))
+    for i, h in enumerate(range(10, 101, 10)):
+        for j, w in enumerate(range(10, 101, 10)):
+            dfoc = df.loc[df['width'] == w].loc[df['height'] == h]
+            grid[i, j] = np.mean(dfoc['process_time'])
+
+    # Create a heatmap
+    sns.set()
+    a = sns.heatmap(grid, xticklabels=list(range(10, 101, 10)),
+                    yticklabels=list(range(10, 101, 10)),
+                    fmt=".1f", cmap=sns.cm.rocket_r)
+    a.invert_yaxis()
+    plt.title("Process time heatmap")
+    plt.xlabel('Width')
+    plt.ylabel('Height')
+    plt.show()
