@@ -41,6 +41,8 @@ if __name__ == '__main__':
     df_no_timeout = df.loc[df['status'] != 'timeout']
 
     sns.set_theme()
+
+    plt.show()
     # Lineplot - memory against size
     plt.figure(figsize=(8, 6))
     df_memory_groups = df.groupby('size').agg(Best=('memory', 'min'),
@@ -79,6 +81,32 @@ if __name__ == '__main__':
     plt.title('Process time w.r.t. heuristics')
     plt.show()
 
+    # dijkstra-diagonal verify with violin split plot
+    df_heuristic = df.rename(columns={'h': 'Euristica'}).replace('dijkstra', 'Cammini rilassati').replace('diagonal', 'D. Diagonale')
+    sns.set(style="whitegrid")
+    plt.figure(figsize=(6, 6))
+    sns.violinplot(data=df_heuristic[df_heuristic['status'] == 'success'], y='solution_cost', split=True, hue='Euristica', x='status', inner=None, linewidth=1, cut=0)
+    plt.xticks([])
+    plt.title("Costi delle soluzioni")
+    plt.xlabel("")
+    plt.ylabel("")
+    plt.show()
+    sum_difference = np.sum(np.abs(
+        df_heuristic[df_heuristic['Euristica'] == 'Cammini rilassati']['Euristica'] -
+        df_heuristic[df_heuristic['Euristica'] == 'D. Diagonale']['Euristica']
+    ))
+    print(f'Difference between the two heuristic: {sum_difference} (should be 0)')
+
+    plt.figure(figsize=(6, 7))
+    ax = sns.countplot(data=df_heuristic, x="Euristica", hue="status")
+    for container in ax.containers:
+        ax.bar_label(container=container)
+    plt.ylabel('')
+    plt.xlabel('')
+    plt.title('Stati per euristica')
+    plt.legend(title='Stati')
+    plt.show()
+
     # histogram count status per obstacle ratio
     obstacle_ratio_groups = df.groupby('obstacle_ratio')['status'].value_counts()
     print(obstacle_ratio_groups)
@@ -99,8 +127,8 @@ if __name__ == '__main__':
 
     # histogram grid gen time by size
     df_grid_gen_time_group = df_no_timeout.groupby('size').agg(GridGenTimeMean=('grid_gen_time', 'mean'),
-                                                    AgentsGenTimeMean=('agents_gen_time', 'mean'),
-                                                    ResolutionTimeMean=('resolution_time', 'mean'))
+                                                               AgentsGenTimeMean=('agents_gen_time', 'mean'),
+                                                               ResolutionTimeMean=('resolution_time', 'mean'))
     sns.lineplot(data=df_grid_gen_time_group, errorbar=None, markers=True, dashes=False, markersize=6)
     plt.legend(labels=['Grid generation', 'Agents generation', 'Resolution time'])
     plt.title('Generation and solver elapsed times')
@@ -255,14 +283,4 @@ if __name__ == '__main__':
     plt.xlabel('Width')
     plt.ylabel('Height')
     plt.show()
-
-    # dijkstra-diagonal verify with violin split plot
-    sns.set(style="whitegrid")
-    sns.violinplot(data=df_success, y="solution_cost", split=True, hue="h", x="status")
-    plt.title("Confronto tra Dati di Due Dataset")
-    plt.xlabel("")
-    plt.ylabel("Solution Cost")
-    plt.show()
-
-
 
