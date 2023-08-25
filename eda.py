@@ -255,3 +255,15 @@ if __name__ == '__main__':
     plt.xlabel('Width')
     plt.ylabel('Height')
     plt.show()
+
+    #dijstra diagonal
+
+    df_dijkstra_sol_cost =  df_dijkstra['solution_cost']
+    df_diagonal_sol_cost = df_diagonal['solution_cost']
+    sns.set(style="whitegrid")
+    sns.violinplot(data=df_success, y="solution_cost", split=True, hue="h", x="status")
+    plt.title("Confronto tra Dati di Due Dataset")
+    plt.xlabel("")
+    plt.ylabel("Solution Cost")
+    plt.show()
+
