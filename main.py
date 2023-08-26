@@ -79,7 +79,7 @@ if __name__ == '__main__':
         instance = Instance(12, 12,
                             conglomeration_ratio=0,
                             obstacle_ratio=0.25,
-                            num_agents=0,
+                            num_agents=4,
                             max_length=10,
                             agent_generator=agents.RandomAgentGenerator(max_length=5, avoid_backtracking=False))
         # instance = Instance(10, 8,
@@ -95,6 +95,8 @@ if __name__ == '__main__':
         path, closed_states, inserted_states = solver.solve_instance(instance,
                                                                      heuristic=heuristics.DijkstraRelaxer(instance))
         end = timer()
+        instance.grid.plot(True)
+        heuristics.DijkstraRelaxer(instance).plot()
         print(f"Instance resolution: {end - start} s")
 
         if path is not None:
