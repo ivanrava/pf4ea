@@ -225,9 +225,9 @@ if __name__ == '__main__':
     plt.show()
 
     # plot line
-    sns.lineplot(data=df.groupby('aspect_ratio').agg(InsertedStates=('inserted_states', 'mean')), palette=['red'])
-    sns.lineplot(data=df.groupby('aspect_ratio').agg(ClosedStates=('closed_states', 'mean')), palette=['blue'])
-    plt.title('aspect ratio - states inserted/closed')
+    sns.lineplot(data=df_success.groupby('aspect_ratio').agg(InsertedStates=('inserted_states', 'mean')), palette=['gray'])
+    sns.lineplot(data=df_success.groupby('aspect_ratio').agg(ClosedStates=('closed_states', 'mean')), palette=['black'])
+    plt.title('Stati inseriti / chiusi per rapporto d\'aspetto')
     plt.show()
 
     # dijkstra diagonale states
