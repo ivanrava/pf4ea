@@ -42,7 +42,6 @@ if __name__ == '__main__':
 
     sns.set_theme()
 
-    plt.show()
     # Lineplot - memory against size
     plt.figure(figsize=(8, 6))
     df_memory_groups = df.groupby('size').agg(Best=('memory', 'min'),
@@ -98,7 +97,7 @@ if __name__ == '__main__':
     ))
     print(f'Difference between the two heuristic: {sum_difference} (should be 0)')
 
-    plt.figure(figsize=(6, 7))
+    plt.figure(figsize=(6, 6))
     ax = sns.countplot(data=df_heuristic, x="Euristica", hue="status")
     for container in ax.containers:
         ax.bar_label(container=container)
@@ -144,10 +143,11 @@ if __name__ == '__main__':
 
     sns.lineplot(data=df_no_timeout, x='size', y='agents_gen_time', hue='agent_generator',
                  errorbar=None, markers=True, dashes=False, markersize=8)
-    plt.legend(labels=['Pseudo-random', 'Through ReachGoal'])
-    plt.title('Agent generators time comparison')
-    plt.xlabel('Size')
-    plt.ylabel('Agents generation time')
+
+    plt.legend(labels=['Pseudo-casuale', 'Con ReachGoal'])
+    plt.title('Confronto tra generatori di agenti')
+    plt.xlabel('Dimensione della griglia')
+    plt.ylabel('Tempo impiegato [ms]')
     plt.show()
 
     # num agents - time
@@ -319,7 +319,7 @@ if __name__ == '__main__':
     plt.show()
 
     #stati chiusi per euristica
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, 5))
     plt.subplot(1,2,1)
     sns.lineplot(data=df_diagonal, x='size', y='closed_states')
     plt.xlabel("Dimensione della griglia")
@@ -331,5 +331,62 @@ if __name__ == '__main__':
     plt.ylim((0,6))
     plt.xlabel("Dimensione della griglia")
     plt.ylabel("")
+    plt.subplots_adjust(hspace=0.5)
     plt.show()
 
+    # better waits chart
+    sns.lineplot(data=df_success, x='size', y='solution_length')
+    sns.lineplot(data=df_success, x='size', y='waits')
+    sns.rugplot(data=df, x='waits')
+    plt.xlim((0, 1000))
+    plt.show()
+
+
+    sns.lineplot(data=df.groupby('size').agg(Waits=('waits', 'max')))
+    sns.rugplot(data=df.groupby('size').agg(Waits=('waits', 'sum')), x='Waits')
+    plt.title('# of wait moves')
+    plt.xlabel('Size')
+    plt.show()
+
+
+    sns.scatterplot(data=df_success, x='size', y='solution_length', hue='waits')
+    plt.show()
+
+    # heatmap width-height
+    grid = np.zeros((5, 5))
+    for i, o in enumerate([0, 0.25, 0.5, 0.75, 0.9]):
+        for j, c in enumerate([0, 0.25, 0.5, 0.75, 1]):
+            dfoc = df.loc[df['obstacle_ratio'] == o].loc[df['conglomeration_ratio'] == c]
+            grid[i, j] = np.sum(dfoc['waits'])
+
+    grid[0, 1] = grid[0, 2] = grid[0, 3] = grid[0, 4] = grid[0, 0]
+
+    # Create a heatmap
+    sns.set()
+    a = sns.heatmap(grid, annot=True, xticklabels=['0%', '25%', '50%', '75%', '100%'],
+                    yticklabels=['0%', '25%', '50%', '75%', '90%'],
+                    fmt=".0f", cmap=sns.cm.rocket_r)
+    a.invert_yaxis()
+
+    # Add title
+    # plt.title("Memoria occupata rispetto agli ostacoli")
+    plt.xlabel('Conglomerazione')
+    plt.ylabel('Percentuale di ostacoli')
+    plt.show()
+
+    grid = np.zeros((4, len(df['obstacle_ratio'].unique())))
+    for i, a in enumerate([0, 1, 2, 3]):
+        for j, c in enumerate(df['obstacle_ratio'].unique()):
+            dfoc = df.loc[df['num_agents'] == a].loc[df['obstacle_ratio'] == c]
+            grid[i, j] = np.sum(dfoc['waits'])
+
+    # Create a heatmap
+    sns.set()
+    a = sns.heatmap(grid, annot=True, fmt=".0f", cmap='BuPu', xticklabels=['0%', '25%', '50%', '75%', '90%'])
+    a.invert_yaxis()
+
+    # Add title
+    plt.title("Numero di mosse di attesa fatte dagli entry agent")
+    plt.xlabel('% di ostacoli')
+    plt.ylabel('Numero di agenti')
+    plt.show()
