@@ -50,9 +50,9 @@ if __name__ == '__main__':
                                               Worst=('memory', 'max'))
 
     sns.lineplot(data=df_memory_groups, markers=True, dashes=False, markersize=8)
-    plt.title('Memory consumption w.r.t. grid size', fontsize=18)
-    plt.xlabel('Size')
-    plt.ylabel('Memory [MB]')
+    plt.title('Occupazione spaziale rispetto alla dimensione della griglia', fontsize=18)
+    plt.xlabel('Dimensione della griglia')
+    plt.ylabel('Memoria occupata [MB]')
     plt.show()
 
     # Violinplot - memory against size
@@ -74,11 +74,12 @@ if __name__ == '__main__':
     df_dijkstra = df_success.loc[df['h'] == 'dijkstra']
 
     # grafico size - process time (filtered on success )
+    plt.axhline(y=1000, color='#5559', linestyle='--')
     sns.lineplot(data=df, x='size', y='process_time', hue='h')
-    plt.legend(labels=['Dijkstra relaxed paths', '95% confidence', 'Diagonal distance', '95% confidence'])
-    plt.xlabel('Size')
-    plt.ylabel('Process time [s]')
-    plt.title('Process time w.r.t. heuristics')
+    plt.legend(labels=['Orizzonte di timeout', 'Cammini rilassati', '95% confidenza', 'D. Diagonale', '95% confidenza'])
+    plt.xlabel('Dimensione della griglia')
+    plt.ylabel('Tempo di processo [ms]')
+    plt.title('Tempo di processo mediato per euristica')
     plt.show()
 
     # dijkstra-diagonal verify with violin split plot
@@ -179,7 +180,7 @@ if __name__ == '__main__':
     grid = np.zeros((5, 5))
     for i, o in enumerate([0, 0.25, 0.5, 0.75, 0.9]):
         for j, c in enumerate([0, 0.25, 0.5, 0.75, 1]):
-            dfoc = df.loc[df['obstacle_ratio'] == o].loc[df['conglomeration_ratio'] == c].loc[df['status'] == 'success']
+            dfoc = df.loc[df['obstacle_ratio'] == o].loc[df['conglomeration_ratio'] == c]
             grid[i, j] = np.mean(dfoc['memory'])
 
     grid[0, 1] = grid[0, 2] = grid[0, 3] = grid[0, 4] = grid[0, 0]
@@ -192,9 +193,9 @@ if __name__ == '__main__':
     a.invert_yaxis()
 
     # Add title
-    plt.title("Memory occupation heatmap")
-    plt.xlabel('Conglomeration ratio')
-    plt.ylabel('Obstacle ratio')
+    plt.title("Memoria occupata rispetto agli ostacoli")
+    plt.xlabel('Conglomerazione')
+    plt.ylabel('Percentuale di ostacoli')
     plt.show()
 
     # open closed states
