@@ -259,28 +259,61 @@ if __name__ == '__main__':
     sns.set()
     a = sns.heatmap(grid, xticklabels=list(range(10, 101, 10)),
                     yticklabels=list(range(10, 101, 10)),
-                    fmt=".1f", cmap=sns.cm.rocket_r)
+                    fmt=".1f", cmap=sns.cm.rocket_r, cbar_kws={'label': 'MB'})
     a.invert_yaxis()
-    plt.title("Memory occupation heatmap")
-    plt.xlabel('Width')
-    plt.ylabel('Height')
+    plt.title("Memoria occupata rispetto alle dimensioni della griglia")
+    plt.xlabel('Larghezza')
+    plt.ylabel('Altezza')
     plt.show()
 
     # heatmap width-height
-    grid = np.zeros((10, 10))
-    for i, h in enumerate(range(10, 101, 10)):
-        for j, w in enumerate(range(10, 101, 10)):
-            dfoc = df.loc[df['width'] == w].loc[df['height'] == h]
-            grid[i, j] = np.mean(dfoc['process_time'])
+    def build_grid(param):
+        grid = np.zeros((10, 10))
+        for i, h in enumerate(range(10, 101, 10)):
+            for j, w in enumerate(range(10, 101, 10)):
+                dfoc = df.loc[df['width'] == w].loc[df['height'] == h]
+                if param != 'process_time':
+                    dfoc = dfoc.loc[dfoc['status'] == 'success']
+                grid[i, j] = np.mean(dfoc[param])
+        return grid
 
     # Create a heatmap
     sns.set()
-    a = sns.heatmap(grid, xticklabels=list(range(10, 101, 10)),
+    plt.figure(figsize=(10, 6))
+    plt.subplot(2, 2, 1)
+    plt.suptitle("Tempi di esecuzione [ms] in funzione delle dimensioni della griglia")
+    a = sns.heatmap(build_grid('process_time'), xticklabels=list(range(10, 101, 10)),
                     yticklabels=list(range(10, 101, 10)),
                     fmt=".1f", cmap=sns.cm._crest_lut)
     a.invert_yaxis()
-    plt.title("Process time heatmap")
-    plt.xlabel('Width')
-    plt.ylabel('Height')
+    plt.title("Tempo di processo")
+    # plt.xlabel('Larghezza')
+    plt.ylabel('Altezza')
+    plt.subplot(2, 2, 2)
+    a = sns.heatmap(build_grid('grid_gen_time'), xticklabels=list(range(10, 101, 10)),
+                    yticklabels=list(range(10, 101, 10)),
+                    fmt=".1f", cmap=sns.cm._crest_lut)
+    a.invert_yaxis()
+    plt.title("Tempo di generazione della griglia")
+    # plt.xlabel('Larghezza')
+    # plt.ylabel('Altezza')
+    plt.subplot(2, 2, 3)
+    a = sns.heatmap(build_grid('agents_gen_time'), xticklabels=list(range(10, 101, 10)),
+                    yticklabels=list(range(10, 101, 10)),
+                    fmt=".1f", cmap=sns.cm._crest_lut)
+    a.invert_yaxis()
+    plt.title("Tempo di generazione degli agenti")
+    plt.xlabel('Larghezza')
+    plt.ylabel('Altezza')
+    plt.subplot(2, 2, 4)
+    a = sns.heatmap(build_grid('resolution_time'), xticklabels=list(range(10, 101, 10)),
+                    yticklabels=list(range(10, 101, 10)),
+                    fmt=".1f", cmap=sns.cm._crest_lut)
+    a.invert_yaxis()
+    plt.title("Tempo di risoluzione")
+    plt.xlabel('Larghezza')
+    # plt.ylabel('Altezza')
+
+    plt.subplots_adjust(hspace=0.3)
     plt.show()
 
