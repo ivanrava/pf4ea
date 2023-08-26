@@ -318,3 +318,18 @@ if __name__ == '__main__':
     plt.subplots_adjust(hspace=0.3)
     plt.show()
 
+    #stati chiusi per euristica
+    plt.figure(figsize=(10, 6))
+    plt.subplot(1,2,1)
+    sns.lineplot(data=df_diagonal, x='size', y='closed_states')
+    plt.xlabel("Dimensione della griglia")
+    plt.ylabel("Stati chiusi")
+    plt.title('Diagonale - stati chiusi')
+    plt.subplot(1,2,2)
+    sns.lineplot(data=df_dijkstra, x='size', y='closed_states')
+    plt.title('Cammini rilassati - stati chiusi')
+    plt.ylim((0,6))
+    plt.xlabel("Dimensione della griglia")
+    plt.ylabel("")
+    plt.show()
+
