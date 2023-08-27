@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
 from typing import Callable
+import heapq
 
 from generator.grid import Grid
 from generator.utils import Path
@@ -88,16 +89,17 @@ class DijkstraRelaxer(Heuristic):
         d = {instance.goal: 0}
         pi = {}
         S = set()
-        Q = set(instance.grid.adj.keys())
+        Q = [(0, instance.goal)]
+        heapq.heapify(Q)
         while len(Q) > 0:
-            u = extract_min(Q, lambda x: d[x] if x in d else np.inf)
-            Q = Q - {u}
+            _,u = heapq.heappop(Q)
             S = S | {u}
             for v in instance.grid.adj[u]:
                 v = v[0]
                 if (d[v] if v in d else np.inf) > (d[u] if u in d else np.inf) + instance.grid.get_weight(u, v):
                     d[v] = d[u] + instance.grid.get_weight(u, v)
                     pi[v] = u
+                    heapq.heappush(Q, (d[v], v))
         self.pi = pi
         self.d = d
 

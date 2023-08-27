@@ -1,3 +1,5 @@
+import heapq
+
 import numpy as np
 
 import heuristics
@@ -32,18 +34,18 @@ def reach_goal(grid, paths, init: (int, int), goal: (int, int), max_length, heur
     inserted_states = 1
     # Required structures
     closed_states = set()
-    open_states = {(init, 0)}
     g = {(init, 0): 0}
     P = {}
 
     f = {(init, 0): heuristic.heuristic(init)}
+    open_states = [(f[(init, 0)], (init, 0))]
+    heapq.heapify(open_states)
 
     while len(open_states) > 0:
         # Find the state in open_states with the lowest f-score
-        min_state = extract_min(open_states, lambda vertex: f[vertex] if vertex in f else np.inf)
+        _, min_state = heapq.heappop(open_states)
 
         v, t = min_state
-        open_states = open_states - {(v, t)}
         closed_states = closed_states | {(v, t)}
         if v == goal:
             return reconstruct_path(init, goal, P, t), len(closed_states), inserted_states
@@ -83,8 +85,13 @@ def reach_goal(grid, paths, init: (int, int), goal: (int, int), max_length, heur
                             P[(n, t + 1)] = min_state
                             g[(n, t + 1)] = g[min_state] + grid.get_weight(v, n)
                             f[(n, t + 1)] = g[(n, t + 1)] + heuristic.heuristic(n)
-                        if (n, t + 1) not in open_states:
-                            open_states = open_states | {(n, t + 1)}
+                        found = False
+                        for _, el in open_states:
+                            if el == (n, t+1):
+                                found = True
+                                break
+                        if not found:
+                            heapq.heappush(open_states, (f[(n, t+1)], (n, t+1)))
                             inserted_states += 1
 
     return None, len(closed_states), inserted_states
