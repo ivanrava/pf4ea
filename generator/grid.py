@@ -7,11 +7,18 @@ def get_random_boolean_weighted(weight):
     return (np.random.random_sample(1) < weight)[0]
 
 
+def gen_bit_matrix(shape):
+    n = np.prod(shape)
+    nb = -(-n // 8)  # ceiling division
+    b = np.fromstring(nb*b'\x00', np.uint8, nb)
+    return np.unpackbits(b)[:n].reshape(shape).view(bool)
+
+
 class Grid:
     def __init__(self, height, width, obstacle_ratio=0.1, conglomeration_ratio=0.5):
         start = timer()
         # Generates an empty grid
-        self.grid = np.zeros((height, width))
+        self.grid = gen_bit_matrix((height, width))
         self.obstacle_ratio = obstacle_ratio
         self.conglomeration_ratio = conglomeration_ratio
 
