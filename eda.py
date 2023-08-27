@@ -24,7 +24,9 @@ if __name__ == '__main__':
     df['size'] = df['width'] * df['height']
     df['obstacles'] = (df['size'] * df['obstacle_ratio']).astype('int')
     df['free_cells'] = df['size'] - df['obstacles']
+    df['states_difference'] = df['inserted_states'] - df['closed_states']
 
+    df_success = df.loc[df['status'] == 'success']
 
     def aspect_ratio(row):
         if row['width'] >= row['height']:
@@ -56,10 +58,9 @@ if __name__ == '__main__':
 
     # Violinplot - memory against size
     plt.figure(figsize=(16, 8))
-    ax = sns.violinplot(x='size', y='memory', data=df, linewidth=0)
-    plt.ylim((97, 110))
+    ax = sns.violinplot(x='size', y='solution_length', data=df_success, linewidth=0)
     sns.despine(offset=10, trim=True)
-    plt.title('Memory consumption distribution w.r.t grid size', fontsize=22)
+    plt.title('', fontsize=22)
     plt.xlabel('Size')
     plt.ylabel('Memory [MB]')
     plt.grid(zorder=0)
@@ -67,7 +68,11 @@ if __name__ == '__main__':
     plt.show()
 
     # graphic size - resolution time (filtered on status success)
-    df_success = df.loc[df['status'] == 'success']
+    sns.lineplot(data=df_success, x='size', y='states_difference')
+    plt.title('Stati inseriti / chiusi per rapporto d\'aspetto')
+    plt.xlabel('Dimensione della griglia')
+    plt.ylabel('Differenza tra stati inseriti e chiusi')
+    plt.show()
 
     df_diagonal = df_success.loc[df['h'] == 'diagonal']
     df_dijkstra = df_success.loc[df['h'] == 'dijkstra']
@@ -91,11 +96,33 @@ if __name__ == '__main__':
     plt.xlabel("")
     plt.ylabel("")
     plt.show()
+
     sum_difference = np.sum(np.abs(
-        df_heuristic[df_heuristic['Euristica'] == 'Cammini rilassati']['Euristica'] -
-        df_heuristic[df_heuristic['Euristica'] == 'D. Diagonale']['Euristica']
+        df_heuristic[df_heuristic['Euristica'] == 'Cammini rilassati']['solution_cost'] -
+        df_heuristic[df_heuristic['Euristica'] == 'D. Diagonale']['solution_cost']
     ))
-    print(f'Difference between the two heuristic: {sum_difference} (should be 0)')
+    print(f'Difference between the two heuristics (costs): {sum_difference} (should be 0)')
+
+
+    plt.figure(figsize=(6, 6))
+    sns.violinplot(data=df_heuristic[df_heuristic['status'] == 'success'], y='solution_length', split=True, hue='Euristica', x='status', linewidth=1, cut=0, inner='quartile')
+    plt.xticks([])
+    plt.title("Lunghezza delle soluzioni")
+    plt.xlabel("")
+    plt.ylabel("")
+    plt.show()
+
+    sum_difference = np.sum(np.abs(
+        df_heuristic[df_heuristic['Euristica'] == 'Cammini rilassati']['solution_length'] -
+        df_heuristic[df_heuristic['Euristica'] == 'D. Diagonale']['solution_length']
+    ))
+    print(f'Difference between the two heuristics (lengths): {sum_difference} (should be 0)')
+
+    sns.histplot(data=df_success, x='solution_length')
+    plt.title("Lunghezza delle soluzioni")
+    plt.xlabel("")
+    plt.ylabel("")
+    plt.show()
 
     plt.figure(figsize=(6, 6))
     ax = sns.countplot(data=df_heuristic, x="Euristica", hue="status")
@@ -151,14 +178,16 @@ if __name__ == '__main__':
     plt.show()
 
     # num agents - time
+    sns.set_theme()
     df_num_agents_group = df.groupby('num_agents').agg(AgentsGenTime=('agents_gen_time', 'mean'),
                                                        ResolutionTime=('resolution_time', 'mean'))
-    g = sns.lineplot(data=df_num_agents_group, errorbar=None, markers=True, dashes=False, markersize=7)
-    plt.legend(labels=['Agent generation time', 'Resolution time'])
+    sns.lineplot(data=df_success, x='num_agents', y='agents_gen_time', marker='.', markers=True, markersize=12)
+    g = sns.lineplot(data=df_success, x='num_agents', y='resolution_time', marker='.', markers=True, markersize=12)
+    plt.legend(labels=['Tempo di generazione degli agenti', '95% confidenza', 'Tempo di risoluzione', '95% confidenza'])
     g.set(xticks=[0, 1, 2, 3])
-    plt.title('Times w.r.t. # of agents')
-    plt.xlabel('# of agents')
-    plt.ylabel('[s]')
+    plt.title('Tempistiche dipendenti dal numero di agenti')
+    plt.xlabel('Numero di agenti')
+    plt.ylabel('Tempo [ms]')
     plt.show()
 
     # filter agents on random and optimal
@@ -226,10 +255,8 @@ if __name__ == '__main__':
     plt.show()
 
     # plot line
-    sns.lineplot(data=df_success.groupby('aspect_ratio').agg(InsertedStates=('inserted_states', 'mean')), palette=['gray'])
-    sns.lineplot(data=df_success.groupby('aspect_ratio').agg(ClosedStates=('closed_states', 'mean')), palette=['black'])
-    plt.title('Stati inseriti / chiusi per rapporto d\'aspetto')
-    plt.show()
+    # sns.lineplot(data=df_success.groupby('aspect_ratio').agg(InsertedStates=('inserted_states', 'mean')), palette=['gray'])
+    # sns.lineplot(data=df_success.groupby('aspect_ratio').agg(ClosedStates=('closed_states', 'mean')), palette=['black'])
 
     # dijkstra diagonale states
     sns.lineplot(data=df_diagonal.groupby('size').agg(InsertedStatesDiagonal=('inserted_states', 'mean')),
@@ -365,11 +392,11 @@ if __name__ == '__main__':
     sns.set()
     a = sns.heatmap(grid, annot=True, xticklabels=['0%', '25%', '50%', '75%', '100%'],
                     yticklabels=['0%', '25%', '50%', '75%', '90%'],
-                    fmt=".0f", cmap=sns.cm.rocket_r)
+                    fmt=".0f", cmap='BuPu')
     a.invert_yaxis()
 
     # Add title
-    # plt.title("Memoria occupata rispetto agli ostacoli")
+    plt.title("Mosse di attesa fatte dagli entry agent")
     plt.xlabel('Conglomerazione')
     plt.ylabel('Percentuale di ostacoli')
     plt.show()
