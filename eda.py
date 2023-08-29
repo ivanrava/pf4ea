@@ -28,6 +28,9 @@ if __name__ == '__main__':
 
     df_success = df.loc[df['status'] == 'success']
 
+    worst_cases = df.loc[(df['status'] == 'success') & (df['closed_states'] > 3000)]
+    print(worst_cases[['closed_states', 'h', 'process_time', 'memory']])
+
 
     def aspect_ratio(row):
         if row['width'] >= row['height']:
@@ -50,7 +53,6 @@ if __name__ == '__main__':
     df_memory_groups = df.groupby('size').agg(Best=('memory', 'min'),
                                               Mean=('memory', 'mean'),
                                               Worst=('memory', 'max'))
-    print(df_memory_groups)
 
     sns.lineplot(data=df_memory_groups, markers=True, dashes=False, markersize=8)
     plt.title('Occupazione spaziale rispetto alla dimensione della griglia', fontsize=18)
@@ -72,7 +74,7 @@ if __name__ == '__main__':
 
     # graphic size - resolution time (filtered on status success)
     sns.lineplot(data=df_success, x='size', y='states_difference')
-    plt.title('Stati inseriti / chiusi per rapporto d\'aspetto')
+    plt.title('Stati inseriti / chiusi per dimensione della griglia')
     plt.xlabel('Dimensione della griglia')
     plt.ylabel('Differenza tra stati inseriti e chiusi')
     plt.show()
